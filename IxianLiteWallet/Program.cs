@@ -1,5 +1,6 @@
 ﻿using DLT;
 using DLT.Meta;
+using IXICore.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,13 +35,14 @@ namespace IxianLiteWallet
             Node.init();
 
             // Start the actual  node
-            Node.start(false);
+            Node.start();
         }
 
         static void mainLoop()
         {
             bool running = true;
-            while(running)
+            Console.WriteLine("Type help to see a list of available commands.\n");
+            while (running)
             {
                 Console.Write("IxianLiteWallet>");
                 string line = Console.ReadLine();
@@ -54,13 +56,16 @@ namespace IxianLiteWallet
 
                 if(line.Equals("help"))
                 {
-                    Console.WriteLine("Ixian LiteWallet usage:");
+                    Console.WriteLine("IxianLiteWallet usage:");
                     Console.WriteLine("\texit\t\t\t-exits the litewallet");
                     Console.WriteLine("\thelp\t\t\t-shows this help message");
                     Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
                     Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
                     Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
-
+                    Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
+                    Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
+                    // generate new address, view all address balances
+                    // change password
                     Console.WriteLine("");
                     continue;
                 }
@@ -78,6 +83,33 @@ namespace IxianLiteWallet
                     continue;
                 }
 
+                if (line.Equals("backup"))
+                {
+                    List<byte> wallet = new List<byte>();
+                    wallet.AddRange(Node.walletStorage.getRawWallet());
+                    Console.WriteLine("IXIHEX" + Crypto.hashToString(wallet.ToArray()));
+                    Console.WriteLine("");
+                    continue;
+                }
+
+                if (line.Equals("changepass"))
+                {
+                    // Request a new password
+                    string new_password = "";
+                    while (new_password.Length < 10)
+                    {
+                        new_password = ConsoleHelpers.requestNewPassword("Enter a new password for your wallet: ");
+                        if (new_password.Length == 0)
+                        {
+                            continue;
+                        }
+                    }
+                    if(Node.walletStorage.writeWallet(new_password))
+                        Console.WriteLine("Wallet password changed.");
+                    continue;
+                }
+
+                // Handle multiple parameters
                 string[] split = line.Split(new string[] { " " }, StringSplitOptions.None);
 
                 if(split[0].Equals("send"))
@@ -88,7 +120,20 @@ namespace IxianLiteWallet
                         continue;
                     }
                     string address = split[1];
+                    // Validate the address first
+                    byte[] _address = Base58Check.Base58CheckEncoding.DecodePlain(address);
+                    if (Address.validateChecksum(_address) == false)
+                    {
+                        Console.WriteLine("Invalid address checksum!. Please make sure you typed the address correctly.\n");
+                        continue;
+                    }
+                    // Make sure the amount is positive
                     IxiNumber amount = new IxiNumber(split[2]);
+                    if (amount < (long)0)
+                    {
+                        Console.WriteLine("Please type a positive amount.\n");
+                        continue;
+                    }
                     Node.sendTransaction(address, amount);
                     continue;
                 }

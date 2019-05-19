@@ -145,6 +145,9 @@ namespace DLT.Meta
             forceShutdown = true;
             ConsoleHelpers.forceShutdown = true;
 
+            // Stop the keepalive thread
+            //PresenceList.stopKeepAlive();
+
             // Stop the network queue
             NetworkQueue.stop();
 
@@ -152,7 +155,7 @@ namespace DLT.Meta
             NetworkClientManager.stop();
         }
 
-        static public void start(bool verboseConsoleOutput)
+        static public void start()
         {
             PresenceList.generatePresenceList(Config.publicServerIP, 'C');
 
@@ -161,6 +164,9 @@ namespace DLT.Meta
 
             // Start the network client manager
             NetworkClientManager.start();
+
+            // Start the keepalive thread
+            //PresenceList.startKeepAlive();
 
         }
 
@@ -193,12 +199,23 @@ namespace DLT.Meta
 
         static public void sendTransaction(string address, IxiNumber amount)
         {
+            Node.getBalance();
+
+            if(Node.balance < amount)
+            {
+                Console.WriteLine("Insufficient funds.\n");
+                return;
+            }
+
             SortedDictionary<byte[], IxiNumber> to_list = new SortedDictionary<byte[], IxiNumber>(new ByteArrayComparer());
 
             IxiNumber fee = CoreConfig.transactionPrice;
             byte[] from = Node.walletStorage.getPrimaryAddress();
             byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
-            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, Node.getLastBlockHeight());
+            to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
+            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, Node.blockHeight);
+            NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.newTransaction, transaction.getBytes(), null);
+            Console.WriteLine("Transaction sent: {0}\n", transaction.id);
         }
 
         static public bool update()
@@ -213,7 +230,7 @@ namespace DLT.Meta
 
         public static int getLastBlockVersion()
         {
-            return 0;
+            return 3;
         }
 
         public static ulong getLastBlockHeight()

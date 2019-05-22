@@ -22,8 +22,6 @@ namespace DLT.Meta
         public static string device_id = Guid.NewGuid().ToString();
         public static string externalIp = "";
 
-        public static bool verboseConsoleOutput = false; // Flag for verbose console output
-
 
         public static readonly string version = "xlwc-0.5.0-dev"; // LiteWallet version
 

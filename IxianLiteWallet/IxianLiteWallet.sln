@@ -5,12 +5,12 @@ VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxianLiteWallet", "IxianLiteWallet.csproj", "{3F88E65A-554D-4BF3-A8DD-8B4E2D52E5BB}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IXICore", "..\..\Ixian-source\IxianCore\IXICore.shproj", "{80487C64-619A-4B60-97BD-ED7670BF45B3}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IXICore", "..\..\Ixian-Core\IXICore.shproj", "{80487C64-619A-4B60-97BD-ED7670BF45B3}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\Ixian-source\IxianCore\IXICore.projitems*{3f88e65a-554d-4bf3-a8dd-8b4e2d52e5bb}*SharedItemsImports = 4
-		..\..\Ixian-source\IxianCore\IXICore.projitems*{80487c64-619a-4b60-97bd-ed7670bf45b3}*SharedItemsImports = 13
+		..\..\Ixian-Core\IXICore.projitems*{3f88e65a-554d-4bf3-a8dd-8b4e2d52e5bb}*SharedItemsImports = 4
+		..\..\Ixian-Core\IXICore.projitems*{80487c64-619a-4b60-97bd-ed7670bf45b3}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

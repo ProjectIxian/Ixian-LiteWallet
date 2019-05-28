@@ -1,5 +1,5 @@
 # Ixian-LiteWallet
-Simple command line interface (CLI) wallet for Ixian
+Simple command line interface (CLI) wallet for the Ixian cryptocurrency.
 
 ## Development branches
 

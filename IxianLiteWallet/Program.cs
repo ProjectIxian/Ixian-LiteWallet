@@ -61,7 +61,7 @@ namespace IxianLiteWallet
                     Console.WriteLine("\thelp\t\t\t-shows this help message");
                     Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
                     Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
-                    Console.WriteLine("\taddresses\t\t\t-shows all addresses for this wallet");
+                    Console.WriteLine("\taddresses\t\t-shows all addresses for this wallet");
                     Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
                     Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
                     Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");

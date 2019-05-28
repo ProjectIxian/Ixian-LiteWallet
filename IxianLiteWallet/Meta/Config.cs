@@ -23,7 +23,7 @@ namespace DLT.Meta
         public static string externalIp = "";
 
 
-        public static readonly string version = "xlwc-0.5.0-dev"; // LiteWallet version
+        public static readonly string version = "xlwc-0.5.0"; // LiteWallet version
 
     }
 }

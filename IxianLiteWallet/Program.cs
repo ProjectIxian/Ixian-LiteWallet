@@ -61,9 +61,10 @@ namespace IxianLiteWallet
                     Console.WriteLine("\thelp\t\t\t-shows this help message");
                     Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
                     Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
-                    Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
+                    Console.WriteLine("\taddresses\t\t\t-shows all addresses for this wallet");
                     Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
                     Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
+                    Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
                     // generate new address, view all address balances
                     // change password
                     Console.WriteLine("");
@@ -78,8 +79,22 @@ namespace IxianLiteWallet
                 }
 
                 if (line.Equals("address"))
-                {                 
+                {
                     Console.WriteLine("Primary address: {0}\n", Base58Check.Base58CheckEncoding.EncodePlain(Node.walletStorage.getPrimaryAddress()));
+                    continue;
+                }
+
+                if (line.Equals("addresses"))
+                {
+                    List<Address> address_list = Node.walletStorage.getMyAddresses();
+
+                    Dictionary<string, string> address_balance_list = new Dictionary<string, string>();
+
+                    foreach (Address addr in address_list)
+                    {
+                        Console.WriteLine("{0}", addr.ToString());
+                    }
+                    Console.WriteLine("");
                     continue;
                 }
 
@@ -94,6 +109,33 @@ namespace IxianLiteWallet
 
                 if (line.Equals("changepass"))
                 {
+                    // Request the current wallet password
+                    bool success = false;
+                    while (!success)
+                    {
+                        string password = "";
+                        if (password.Length < 10)
+                        {
+                            Logging.flush();
+                            Console.Write("Enter your current wallet password: ");
+                            password = ConsoleHelpers.getPasswordInput();
+                        }
+                        if (password.Length == 0)
+                        {
+                            break;                          
+                        }
+
+                        // Read the wallet using the provided password
+                        Node.walletStorage = new WalletStorage(Config.walletFile);
+                        if (Node.walletStorage.readWallet(password))
+                        {
+                            success = true;
+                        }
+                    }
+
+                    if (success == false)
+                        continue;
+
                     // Request a new password
                     string new_password = "";
                     while (new_password.Length < 10)

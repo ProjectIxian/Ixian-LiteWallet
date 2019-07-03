@@ -202,11 +202,6 @@ namespace DLT.Meta
             return Node.blockHeight;
         }
 
-        public override Block getLastBlock()
-        {
-            return null;
-        }
-
         public override bool isAcceptingConnections()
         {
             return false;
@@ -233,14 +228,24 @@ namespace DLT.Meta
             return NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.newTransaction, tx.getBytes(), null);
         }
 
+        public override Block getLastBlock()
+        {
+            throw new NotImplementedException();
+        }
+
         public override Wallet getWallet(byte[] id)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public override IxiNumber getWalletBalance(byte[] id)
         {
-            return null;
+            throw new NotImplementedException();
+        }
+
+        public override void shutdown()
+        {
+            forceShutdown = true;
         }
     }
 }

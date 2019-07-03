@@ -1,12 +1,10 @@
 ﻿using DLT;
 using DLT.Meta;
-using IXICore.Meta;
+using IXICore;
 using IXICore.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IxianLiteWallet
 {
@@ -14,12 +12,14 @@ namespace IxianLiteWallet
     {
         public static bool noStart = false;
 
+        private static Node node = null;
+
         static void Main(string[] args)
         {
             // Clear the console first
             Console.Clear();
 
-            Console.WriteLine("Ixian LiteWallet {0}", Config.version);
+            Console.WriteLine("Ixian LiteWallet {0} ({1})", Config.version, CoreConfig.version);
 
             onStart(args);
             mainLoop();
@@ -33,10 +33,10 @@ namespace IxianLiteWallet
             CryptoManager.initLib();
 
             // Initialize the node
-            Node.init();
+            node = new Node();
 
             // Start the actual  node
-            Node.start();
+            node.start();
         }
 
         static void mainLoop()

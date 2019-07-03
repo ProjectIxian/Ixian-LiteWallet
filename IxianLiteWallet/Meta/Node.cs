@@ -20,12 +20,16 @@ namespace DLT.Meta
         public static ulong blockHeight = 0;
         public static int blockVersion = 0;
 
+        public Node()
+        {
+            CoreConfig.productVersion = Config.version;
+            IxianHandler.setHandler(this);
+            init();
+        }
 
         // Perform basic initialization of node
-        static public void init()
+        private void init()
         {
-
-
             running = true;
             Logging.consoleOutput = false;
 
@@ -40,7 +44,7 @@ namespace DLT.Meta
             Console.WriteLine("Connecting to Ixian network...");
         }
 
-        static public bool initWallet()
+        private bool initWallet()
         {
             walletStorage = new WalletStorage(Config.walletFile);
 
@@ -115,23 +119,6 @@ namespace DLT.Meta
                 return false;
             }
 
-    /*        // Check if we should change the password of the wallet
-            if (Config.changePass == true)
-            {
-                // Request a new password
-                string new_password = "";
-                while (new_password.Length < 10)
-                {
-                    new_password = ConsoleHelpers.requestNewPassword("Enter a new password for your wallet: ");
-                    if (forceShutdown)
-                    {
-                        return false;
-                    }
-                }
-                walletStorage.writeWallet(new_password);
-            }*/
-
-
             return true;
         }
 
@@ -151,7 +138,7 @@ namespace DLT.Meta
             NetworkClientManager.stop();
         }
 
-        static public void start()
+        public void start()
         {
             PresenceList.generatePresenceList(NetworkClientManager.publicIP, 'C');
 

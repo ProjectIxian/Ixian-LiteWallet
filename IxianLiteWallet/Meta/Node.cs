@@ -1,28 +1,24 @@
-﻿using DLT;
-using DLT.Meta;
-using DLT.Network;
+﻿using DLT.Network;
 using IxianLiteWallet;
 using IXICore;
+using IXICore.Meta;
 using IXICore.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DLT.Meta
 {
-    class Node
+    class Node : IxianNode
     {
         public static bool running = false;
         public static bool forceShutdown = false;
 
         public static WalletStorage walletStorage;
-        public static WalletState walletState;
 
         public static IxiNumber balance = 0;      // Stores the last known balance for this node
         public static ulong blockHeight = 0;
+        public static int blockVersion = 0;
 
 
         // Perform basic initialization of node
@@ -157,7 +153,7 @@ namespace DLT.Meta
 
         static public void start()
         {
-            PresenceList.generatePresenceList(Config.publicServerIP, 'C');
+            PresenceList.generatePresenceList(NetworkClientManager.publicIP, 'C');
 
             // Start the network queue
             NetworkQueue.start();
@@ -169,16 +165,6 @@ namespace DLT.Meta
             //PresenceList.startKeepAlive();
 
         }
-
-        static public void reconnect()
-        {
-
-            // Reset the network receive queue
-            NetworkQueue.reset();
-
-            NetworkClientManager.restartClients();
-        }
-
 
         static public void getBalance()
         {
@@ -201,7 +187,7 @@ namespace DLT.Meta
         {
             Node.getBalance();
 
-            if(Node.balance < amount)
+            if (Node.balance < amount)
             {
                 Console.WriteLine("Insufficient funds.\n");
                 return;
@@ -209,53 +195,65 @@ namespace DLT.Meta
 
             SortedDictionary<byte[], IxiNumber> to_list = new SortedDictionary<byte[], IxiNumber>(new ByteArrayComparer());
 
-            IxiNumber fee = CoreConfig.transactionPrice;
+            IxiNumber fee = ConsensusConfig.transactionPrice;
             byte[] from = Node.walletStorage.getPrimaryAddress();
             byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
             to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, Node.blockHeight);
-            NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.newTransaction, transaction.getBytes(), null);
-            Console.WriteLine("Transaction sent: {0}\n", transaction.id);
+            if (IxianHandler.addTransaction(transaction))
+            {
+                Console.WriteLine("Transaction sent: {0}\n", transaction.id);
+            }else
+            {
+                Console.WriteLine("Could not send transaction\n");
+            }
+
         }
 
-        static public bool update()
+        public override ulong getLastBlockHeight()
         {
-            return running;
+            return Node.blockHeight;
         }
 
-        public static string getFullAddress()
-        {
-            return Config.publicServerIP + ":" + Config.serverPort;
-        }
-
-        public static int getLastBlockVersion()
-        {
-            return 3;
-        }
-
-        public static ulong getLastBlockHeight()
-        {
-            return 0;
-        }
-
-        public static Block getLastBlock()
+        public override Block getLastBlock()
         {
             return null;
         }
 
-        public static int getRequiredConsensus()
-        {
-            return 0;
-        }
-
-        public static bool isAcceptingConnections()
+        public override bool isAcceptingConnections()
         {
             return false;
         }
 
-        public static char getNodeType()
+        public override char getNodeType()
         {
             return 'C';
+        }
+
+        public override ulong getHighestKnownNetworkBlockHeight()
+        {
+            return Node.blockHeight;
+        }
+
+        public override int getLastBlockVersion()
+        {
+            return Node.blockVersion;
+        }
+
+        public override bool addTransaction(Transaction tx)
+        {
+            // TODO use pending transactions here
+            return NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.newTransaction, tx.getBytes(), null);
+        }
+
+        public override Wallet getWallet(byte[] id)
+        {
+            return null;
+        }
+
+        public override IxiNumber getWalletBalance(byte[] id)
+        {
+            return null;
         }
     }
 }

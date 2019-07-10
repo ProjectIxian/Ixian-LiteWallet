@@ -1,14 +1,13 @@
-﻿using DLT.Meta;
-using IXICore;
+﻿using IXICore;
+using IXICore.Meta;
+using IXICore.Network;
+using LW.Meta;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace DLT.Network
+namespace LW.Network
 {
     public class ProtocolMessage
     {

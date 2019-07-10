@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DLT.Meta
+namespace LW.Meta
 {
     class Config
     {

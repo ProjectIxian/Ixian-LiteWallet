@@ -1,13 +1,14 @@
-﻿using DLT.Network;
-using IxianLiteWallet;
+﻿using IxianLiteWallet;
 using IXICore;
 using IXICore.Meta;
+using IXICore.Network;
 using IXICore.Utils;
+using LW.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace DLT.Meta
+namespace LW.Meta
 {
     class Node : IxianNode
     {

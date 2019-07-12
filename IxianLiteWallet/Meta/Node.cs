@@ -248,5 +248,15 @@ namespace LW.Meta
         {
             forceShutdown = true;
         }
+
+        public override WalletStorage getWalletStorage()
+        {
+            return walletStorage;
+        }
+
+        public override void parseProtocolMessage(ProtocolMessageCode code, byte[] data, RemoteEndpoint endpoint)
+        {
+            ProtocolMessage.parseProtocolMessage(code, data, endpoint);
+        }
     }
 }

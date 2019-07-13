@@ -20,10 +20,15 @@ namespace LW.Network
             blocked = true;
         }
 
-        public static void wait()
+        public static void wait(int timeout_seconds)
         {
+            DateTime start = DateTime.UtcNow;
             while(blocked)
             {
+                if((DateTime.UtcNow - start).TotalSeconds > timeout_seconds)
+                {
+                    Logging.warn("Timeout occured while waiting for " + waitingFor);
+                }
                 Thread.Sleep(250);
             }
         }
@@ -112,6 +117,8 @@ namespace LW.Network
                                     endpoint.helloReceived = true;
                                     NetworkClientManager.recalculateLocalTimeDifference();
 
+                                    endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
+
                                     // Subscribe to transaction events
                                     /*byte[] event_data = NetworkEvents.prepareEventMessageData(NetworkEvents.Type.transactionFrom, Node.walletStorage.getPrimaryAddress());
                                     endpoint.sendData(ProtocolMessageCode.attachEvent, event_data);
@@ -145,6 +152,13 @@ namespace LW.Network
                                     Node.blockHeight = blockheight;
                                 }
                             }
+                        }
+                        break;
+
+                    case ProtocolMessageCode.updatePresence:
+                        {
+                            // Parse the data and update entries in the presence list
+                            PresenceList.updateFromBytes(data);
                         }
                         break;
 

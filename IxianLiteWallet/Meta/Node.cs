@@ -13,7 +13,6 @@ namespace LW.Meta
     class Node : IxianNode
     {
         public static bool running = false;
-        public static bool forceShutdown = false;
 
         public static WalletStorage walletStorage;
 
@@ -62,7 +61,7 @@ namespace LW.Meta
                 {
                     Logging.flush();
                     password = ConsoleHelpers.requestNewPassword("Enter a password for your new wallet: ");
-                    if (forceShutdown)
+                    if (IxianHandler.forceShutdown)
                     {
                         return false;
                     }
@@ -85,7 +84,7 @@ namespace LW.Meta
                         Console.Write("Enter wallet password: ");
                         password = ConsoleHelpers.getPasswordInput();
                     }
-                    if (forceShutdown)
+                    if (IxianHandler.forceShutdown)
                     {
                         return false;
                     }
@@ -126,8 +125,7 @@ namespace LW.Meta
         static public void stop()
         {
             Program.noStart = true;
-            forceShutdown = true;
-            ConsoleHelpers.forceShutdown = true;
+            IxianHandler.forceShutdown = true;
 
             // Stop the keepalive thread
             //PresenceList.stopKeepAlive();
@@ -141,7 +139,7 @@ namespace LW.Meta
 
         public void start()
         {
-            PresenceList.generatePresenceList(IxianHandler.publicIP, 'C');
+            PresenceList.init(IxianHandler.publicIP, 0, 'C');
 
             // Start the network queue
             NetworkQueue.start();
@@ -168,7 +166,7 @@ namespace LW.Meta
                     NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.getBalance, mw.ToArray(), null);
                 }
             }
-            ProtocolMessage.wait();
+            ProtocolMessage.wait(30);
         }
 
         static public void sendTransaction(string address, IxiNumber amount)
@@ -241,7 +239,7 @@ namespace LW.Meta
 
         public override void shutdown()
         {
-            forceShutdown = true;
+            IxianHandler.forceShutdown = true;
         }
 
         public override WalletStorage getWalletStorage()

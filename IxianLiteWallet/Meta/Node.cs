@@ -141,7 +141,7 @@ namespace LW.Meta
 
         public void start()
         {
-            PresenceList.generatePresenceList(NetworkClientManager.publicIP, 'C');
+            PresenceList.generatePresenceList(IxianHandler.publicIP, 'C');
 
             // Start the network queue
             NetworkQueue.start();
@@ -206,11 +206,6 @@ namespace LW.Meta
         public override bool isAcceptingConnections()
         {
             return false;
-        }
-
-        public override char getNodeType()
-        {
-            return 'C';
         }
 
         public override ulong getHighestKnownNetworkBlockHeight()

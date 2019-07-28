@@ -162,6 +162,13 @@ namespace LW.Network
                         }
                         break;
 
+                    case ProtocolMessageCode.blockHeaders:
+                        {
+                            // Forward the block headers to the TIV handler
+                            Node.tiv.receivedBlockHeaders(data, endpoint);
+                        }
+                        break;
+
                     default:
                         break;
 

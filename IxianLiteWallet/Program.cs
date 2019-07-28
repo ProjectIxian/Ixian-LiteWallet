@@ -60,15 +60,30 @@ namespace IxianLiteWallet
                     Console.WriteLine("IxianLiteWallet usage:");
                     Console.WriteLine("\texit\t\t\t-exits the litewallet");
                     Console.WriteLine("\thelp\t\t\t-shows this help message");
+                    Console.WriteLine("\tstatus\t\t\t-shows the number of connected DLT nodes");
                     Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
                     Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
                     Console.WriteLine("\taddresses\t\t-shows all addresses for this wallet");
                     Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
                     Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
+                    Console.WriteLine("\tverify [txid]\t\t-verifies the specified transaction txid");
                     Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
                     // generate new address, view all address balances
                     // change password
                     Console.WriteLine("");
+                    continue;
+                }
+
+                if(line.Equals("test"))
+                {
+                    Node.test();
+                    Console.WriteLine("\n");
+                    continue;
+                }
+
+                if (line.Equals("status"))
+                {
+                    Node.status();
                     continue;
                 }
 
@@ -178,6 +193,20 @@ namespace IxianLiteWallet
                         continue;
                     }
                     Node.sendTransaction(address, amount);
+                    continue;
+                }
+
+                if(split[0].Equals("verify"))
+                {
+                    if (split.Count() < 2)
+                    {
+                        Console.WriteLine("Incorrect parameters for verify. Should be at least the txid.\n");
+                        continue;
+                    }
+
+                    string txid = split[1];
+                    Node.verifyTransaction(txid);
+
                     continue;
                 }
 

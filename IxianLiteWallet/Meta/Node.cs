@@ -7,6 +7,7 @@ using LW.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace LW.Meta
 {
@@ -19,6 +20,8 @@ namespace LW.Meta
         public static IxiNumber balance = 0;      // Stores the last known balance for this node
         public static ulong blockHeight = 0;
         public static int blockVersion = 0;
+
+        public static TransactionInclusion tiv = null;
 
         public Node()
         {
@@ -42,6 +45,9 @@ namespace LW.Meta
             }
 
             Console.WriteLine("Connecting to Ixian network...");
+
+            // Start TIV
+            tiv = new TransactionInclusion();
         }
 
         private bool initWallet()
@@ -127,6 +133,9 @@ namespace LW.Meta
             Program.noStart = true;
             IxianHandler.forceShutdown = true;
 
+            // Stop TIV
+            tiv.stop();
+
             // Stop the keepalive thread
             //PresenceList.stopKeepAlive();
 
@@ -150,6 +159,32 @@ namespace LW.Meta
             // Start the keepalive thread
             //PresenceList.startKeepAlive();
 
+        }
+
+        static public void test()
+        {
+
+        }
+
+        static public void verifyTransaction(string txid)
+        {
+             int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
+             if(connectionsOut < 3)
+             {
+                 Console.WriteLine("Need at least 3 node connections to verify transactions.");
+                 return;
+             }
+
+            Console.WriteLine("Posting Transaction Inclusion Verification request for {0}", txid);
+
+            tiv.verifyTransactionInclusion(txid);
+        }
+
+        static public void status()
+        {
+            Console.WriteLine("Last Block: {0}", IxianHandler.getLastBlockHeight());
+            int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
+            Console.WriteLine("Connections: {0}\n", connectionsOut);
         }
 
         static public void getBalance()
@@ -194,6 +229,15 @@ namespace LW.Meta
                 Console.WriteLine("Could not send transaction\n");
             }
 
+        }
+
+        public override void receivedTransactionInclusionVerificationResponse(string txid, bool verified)
+        {
+            string status = "VERIFIED";
+            if (!verified)
+                status = "NOT VERIFIED";
+
+            Console.WriteLine("Transaction {0} is {1}\n",txid, status);
         }
 
         public override ulong getLastBlockHeight()

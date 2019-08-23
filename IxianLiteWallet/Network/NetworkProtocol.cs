@@ -28,6 +28,7 @@ namespace LW.Network
                 if((DateTime.UtcNow - start).TotalSeconds > timeout_seconds)
                 {
                     Logging.warn("Timeout occured while waiting for " + waitingFor);
+                    break;
                 }
                 Thread.Sleep(250);
             }

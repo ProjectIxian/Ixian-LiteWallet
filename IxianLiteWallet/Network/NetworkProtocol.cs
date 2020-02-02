@@ -99,7 +99,7 @@ namespace LW.Network
 
                                     Node.blockHeight = endpoint.blockHeight;
                                     Node.blockVersion = block_version;
-
+                                    
                                     //Node.setLastBlock(last_block_num, block_checksum, walletstate_checksum, block_version);
                                     //Node.setRequiredConsensus(consensus);
 
@@ -118,14 +118,13 @@ namespace LW.Network
                                     endpoint.helloReceived = true;
                                     NetworkClientManager.recalculateLocalTimeDifference();
 
-                                    endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
+                                    if (endpoint.presenceAddress.type == 'M')
+                                    {
+                                        // Get random presences
+                                        endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
 
-                                    // Subscribe to transaction events
-                                    /*byte[] event_data = NetworkEvents.prepareEventMessageData(NetworkEvents.Type.transactionFrom, Node.walletStorage.getPrimaryAddress());
-                                    endpoint.sendData(ProtocolMessageCode.attachEvent, event_data);
-
-                                    event_data = NetworkEvents.prepareEventMessageData(NetworkEvents.Type.transactionTo, Node.walletStorage.getPrimaryAddress());
-                                    endpoint.sendData(ProtocolMessageCode.attachEvent, event_data);*/
+                                        CoreProtocolMessage.subscribeToEvents(endpoint);
+                                    }
                                 }
                             }
                         }
@@ -167,6 +166,14 @@ namespace LW.Network
                         {
                             // Forward the block headers to the TIV handler
                             Node.tiv.receivedBlockHeaders(data, endpoint);
+                        }
+                        break;
+
+                    case ProtocolMessageCode.newTransaction:
+                        {
+                            Transaction tx = new Transaction(data, true);
+                            Node.tiv.receivedNewTransaction(tx);
+                            Console.WriteLine("Received new transaction {0}", tx.id);
                         }
                         break;
 

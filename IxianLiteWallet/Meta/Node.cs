@@ -33,8 +33,10 @@ namespace LW.Meta
         // Perform basic initialization of node
         private void init()
         {
+            CoreConfig.isTestNet = true;
+
             running = true;
-            Logging.consoleOutput = false;
+            Logging.consoleOutput = true;
 
             // Load or Generate the wallet
             if (!initWallet())
@@ -47,7 +49,7 @@ namespace LW.Meta
             Console.WriteLine("Connecting to Ixian network...");
 
             // Start TIV
-            tiv = new TransactionInclusion();
+            tiv = new TransactionInclusion(BlockHeaderStorage.getLastBlockHeader());
         }
 
         private bool initWallet()
@@ -177,7 +179,8 @@ namespace LW.Meta
 
             Console.WriteLine("Posting Transaction Inclusion Verification request for {0}", txid);
 
-            tiv.verifyTransactionInclusion(txid);
+            // TODO
+            //tiv.verifyTransactionInclusion(txid);
         }
 
         static public void status()

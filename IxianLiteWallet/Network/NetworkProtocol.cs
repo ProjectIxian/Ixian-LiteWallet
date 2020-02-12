@@ -169,6 +169,12 @@ namespace LW.Network
                         }
                         break;
 
+                    case ProtocolMessageCode.pitData:
+                        {
+                            Node.tiv.receivedPIT(data, endpoint);
+                        }
+                        break;
+
                     case ProtocolMessageCode.newTransaction:
                         {
                             Transaction tx = new Transaction(data, true);

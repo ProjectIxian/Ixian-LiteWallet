@@ -252,7 +252,7 @@ namespace LW.Meta
 
         public override void receivedBlockHeader(BlockHeader block_header, bool verified)
         {
-            if(balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
+            if(balance.blockChecksum != null && balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
             {
                 balance.verified = true;
             }

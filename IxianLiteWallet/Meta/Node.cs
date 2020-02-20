@@ -11,15 +11,21 @@ using System.Linq;
 
 namespace LW.Meta
 {
+    class Balance
+    {
+        public IxiNumber balance = 0;
+        public ulong blockHeight = 0;
+        public byte[] blockChecksum = null;
+        public bool verified = false;
+    }
+
     class Node : IxianNode
     {
         public static bool running = false;
 
         public static WalletStorage walletStorage;
 
-        public static IxiNumber balance = 0;      // Stores the last known balance for this node
-        public static ulong blockHeight = 0;
-        public static int blockVersion = 0;
+        public static Balance balance = new Balance();      // Stores the last known balance for this node
 
         public static TransactionInclusion tiv = null;
 
@@ -33,10 +39,11 @@ namespace LW.Meta
         // Perform basic initialization of node
         private void init()
         {
+            Logging.consoleOutput = false;
+
             CoreConfig.isTestNet = false;
 
             running = true;
-            Logging.consoleOutput = true;
 
             // Load or Generate the wallet
             if (!initWallet())
@@ -211,7 +218,7 @@ namespace LW.Meta
         {
             Node.getBalance();
 
-            if (Node.balance < amount)
+            if (Node.balance.balance < amount)
             {
                 Console.WriteLine("Insufficient funds.\n");
                 return;
@@ -223,7 +230,7 @@ namespace LW.Meta
             byte[] from = Node.walletStorage.getPrimaryAddress();
             byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
             to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
-            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, Node.blockHeight);
+            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getLastBlockHeight());
             if (IxianHandler.addTransaction(transaction))
             {
                 Console.WriteLine("Transaction sent: {0}\n", transaction.id);
@@ -243,9 +250,17 @@ namespace LW.Meta
             Console.WriteLine("Transaction {0} is {1}\n",txid, status);
         }
 
+        public override void receivedBlockHeader(BlockHeader block_header, bool verified)
+        {
+            if(balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
+            {
+                balance.verified = true;
+            }
+        }
+
         public override ulong getLastBlockHeight()
         {
-            return Node.blockHeight;
+            return tiv.getLastBlockHeader().blockNum;
         }
 
         public override bool isAcceptingConnections()
@@ -255,12 +270,12 @@ namespace LW.Meta
 
         public override ulong getHighestKnownNetworkBlockHeight()
         {
-            return Node.blockHeight;
+            return tiv.getLastBlockHeader().blockNum;
         }
 
         public override int getLastBlockVersion()
         {
-            return Node.blockVersion;
+            return tiv.getLastBlockHeader().version;
         }
 
         public override bool addTransaction(Transaction tx)

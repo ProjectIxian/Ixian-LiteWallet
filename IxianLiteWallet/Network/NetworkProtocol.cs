@@ -97,9 +97,6 @@ namespace LW.Network
 
                                     int block_version = reader.ReadInt32();
 
-                                    Node.blockHeight = endpoint.blockHeight;
-                                    Node.blockVersion = block_version;
-                                    
                                     //Node.setLastBlock(last_block_num, block_checksum, walletstate_checksum, block_version);
                                     //Node.setRequiredConsensus(consensus);
 
@@ -144,12 +141,19 @@ namespace LW.Network
 
                                     if (address.SequenceEqual(Node.walletStorage.getPrimaryAddress()))
                                     {
-                                        Node.balance = balance;
-                                    }
+                                        // Retrieve the blockheight for the balance
+                                        ulong block_height = reader.ReadUInt64();
 
-                                    // Retrieve the blockheight for the balance
-                                    ulong blockheight = reader.ReadUInt64();
-                                    Node.blockHeight = blockheight;
+                                        if (block_height > Node.balance.blockHeight && Node.balance.balance != balance)
+                                        {
+                                            byte[] block_checksum = reader.ReadBytes(reader.ReadInt32());
+
+                                            Node.balance.balance = balance;
+                                            Node.balance.blockHeight = block_height;
+                                            Node.balance.blockChecksum = block_checksum;
+                                            Node.balance.verified = false;
+                                        }
+                                    }
                                 }
                             }
                         }

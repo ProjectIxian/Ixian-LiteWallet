@@ -66,7 +66,7 @@ namespace IxianLiteWallet
                     Console.WriteLine("\taddresses\t\t-shows all addresses for this wallet");
                     Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
                     Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
-                    Console.WriteLine("\tverify [txid]\t\t-verifies the specified transaction txid");
+                    //Console.WriteLine("\tverify [txid]\t\t-verifies the specified transaction txid");
                     Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
                     // generate new address, view all address balances
                     // change password
@@ -90,7 +90,12 @@ namespace IxianLiteWallet
                 if (line.Equals("balance"))
                 {
                     Node.getBalance();
-                    Console.WriteLine("Balance: {0} IXI\n", Node.balance);
+                    string verified = "";
+                    if(Node.balance.verified)
+                    {
+                        verified = " (verified)";
+                    }
+                    Console.WriteLine("Balance: {0} IXI{1}\n", Node.balance.balance, verified);
                     continue;
                 }
 

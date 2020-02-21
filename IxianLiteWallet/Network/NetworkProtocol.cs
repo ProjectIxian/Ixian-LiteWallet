@@ -97,9 +97,6 @@ namespace LW.Network
 
                                     int block_version = reader.ReadInt32();
 
-                                    //Node.setLastBlock(last_block_num, block_checksum, walletstate_checksum, block_version);
-                                    //Node.setRequiredConsensus(consensus);
-
                                     // Check for legacy level
                                     ulong legacy_level = reader.ReadUInt64(); // deprecated
 
@@ -117,6 +114,8 @@ namespace LW.Network
 
                                     if (endpoint.presenceAddress.type == 'M')
                                     {
+                                        Node.setNetworkBlock(last_block_num, block_checksum, block_version);
+
                                         // Get random presences
                                         endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
 

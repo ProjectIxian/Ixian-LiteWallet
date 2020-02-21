@@ -93,7 +93,7 @@ namespace IxianLiteWallet
                     string verified = "";
                     if(Node.balance.verified)
                     {
-                        verified = " (verified)";
+                        //verified = " (verified)"; // not yet
                     }
                     Console.WriteLine("Balance: {0} IXI{1}\n", Node.balance.balance, verified);
                     continue;

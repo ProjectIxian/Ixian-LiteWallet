@@ -260,6 +260,10 @@ namespace LW.Meta
 
         public override ulong getLastBlockHeight()
         {
+            if(tiv.getLastBlockHeader() == null)
+            {
+                return 0;
+            }
             return tiv.getLastBlockHeader().blockNum;
         }
 
@@ -270,11 +274,19 @@ namespace LW.Meta
 
         public override ulong getHighestKnownNetworkBlockHeight()
         {
+            if (tiv.getLastBlockHeader() == null)
+            {
+                return 0;
+            }
             return tiv.getLastBlockHeader().blockNum;
         }
 
         public override int getLastBlockVersion()
         {
+            if (tiv.getLastBlockHeader() == null)
+            {
+                return 0;
+            }
             return tiv.getLastBlockHeader().version;
         }
 

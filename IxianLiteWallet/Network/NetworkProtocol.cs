@@ -143,10 +143,11 @@ namespace LW.Network
                                         // Retrieve the blockheight for the balance
                                         ulong block_height = reader.ReadUInt64();
 
-                                        if (block_height > Node.balance.blockHeight && Node.balance.balance != balance)
+                                        if (block_height > Node.balance.blockHeight && (Node.balance.balance != balance || Node.balance.blockHeight == 0))
                                         {
                                             byte[] block_checksum = reader.ReadBytes(reader.ReadInt32());
 
+                                            Node.balance.address = address;
                                             Node.balance.balance = balance;
                                             Node.balance.blockHeight = block_height;
                                             Node.balance.blockChecksum = block_checksum;
@@ -181,6 +182,9 @@ namespace LW.Network
                     case ProtocolMessageCode.newTransaction:
                         {
                             Transaction tx = new Transaction(data, true);
+
+                            PendingTransactions.increaseReceivedCount(tx.id);
+
                             Node.tiv.receivedNewTransaction(tx);
                             Console.WriteLine("Received new transaction {0}", tx.id);
                         }

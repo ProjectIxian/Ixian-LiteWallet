@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace LW.Meta
 {
     class Balance
     {
+        public byte[] address = null;
         public IxiNumber balance = 0;
         public ulong blockHeight = 0;
         public byte[] blockChecksum = null;
@@ -256,9 +258,12 @@ namespace LW.Meta
 
         public override void receivedTransactionInclusionVerificationResponse(string txid, bool verified)
         {
-            string status = "VERIFIED";
-            if (!verified)
-                status = "NOT VERIFIED";
+            string status = "NOT VERIFIED";
+            if (verified)
+            {
+                status = "VERIFIED";
+                PendingTransactions.remove(txid);
+            }
 
             Console.WriteLine("Transaction {0} is {1}\n",txid, status);
         }
@@ -274,6 +279,7 @@ namespace LW.Meta
                 IxianHandler.status = NodeStatus.ready;
                 setNetworkBlock(block_header.blockNum, block_header.blockChecksum, block_header.version);
             }
+            processPendingTransactions();
         }
 
         public override ulong getLastBlockHeight()
@@ -299,9 +305,9 @@ namespace LW.Meta
         {
             if (tiv.getLastBlockHeader() == null)
             {
-                return 0;
+                return BlockVer.v6;
             }
-            if(tiv.getLastBlockHeader().version < BlockVer.v6)
+            if (tiv.getLastBlockHeader().version < BlockVer.v6)
             {
                 return BlockVer.v6;
             }
@@ -310,8 +316,8 @@ namespace LW.Meta
 
         public override bool addTransaction(Transaction tx)
         {
-            // TODO use pending transactions here
-            return NetworkClientManager.broadcastData(new char[] { 'M' }, ProtocolMessageCode.newTransaction, tx.getBytes(), null);
+            PendingTransactions.addPendingLocalTransaction(tx);
+            return true;
         }
 
         public override Block getLastBlock()
@@ -321,12 +327,22 @@ namespace LW.Meta
 
         public override Wallet getWallet(byte[] id)
         {
-            throw new NotImplementedException();
+            // TODO Properly implement this for multiple addresses
+            if (balance.address != null && id.SequenceEqual(balance.address))
+            {
+                return new Wallet(balance.address, balance.balance);
+            }
+            return new Wallet(id, 0);
         }
 
         public override IxiNumber getWalletBalance(byte[] id)
         {
-            throw new NotImplementedException();
+            // TODO Properly implement this for multiple addresses
+            if (balance.address != null && id.SequenceEqual(balance.address))
+            {
+                return balance.balance;
+            }
+            return 0;
         }
 
         public override void shutdown()
@@ -343,5 +359,48 @@ namespace LW.Meta
         {
             ProtocolMessage.parseProtocolMessage(code, data, endpoint);
         }
+
+        public static void processPendingTransactions()
+        {
+            // TODO TODO improve to include failed transactions
+            ulong last_block_height = IxianHandler.getLastBlockHeight();
+            lock (PendingTransactions.pendingTransactions)
+            {
+                long cur_time = Clock.getTimestamp();
+                List<object[]> tmp_pending_transactions = new List<object[]>(PendingTransactions.pendingTransactions);
+                int idx = 0;
+                foreach (var entry in tmp_pending_transactions)
+                {
+                    Transaction t = (Transaction)entry[0];
+                    long tx_time = (long)entry[1];
+                    if ((int)entry[2] > 3) // already received 3+ feedback
+                    {
+                        continue;
+                    }
+
+                    if (t.applied != 0)
+                    {
+                        PendingTransactions.pendingTransactions.RemoveAll(x => ((Transaction)x[0]).id.SequenceEqual(t.id));
+                        continue;
+                    }
+
+                    // if transaction expired, remove it from pending transactions
+                    if (last_block_height > ConsensusConfig.getRedactedWindowSize() && t.blockHeight < last_block_height - ConsensusConfig.getRedactedWindowSize())
+                    {
+                        Console.WriteLine("Error processing the transaction {0}", Encoding.UTF8.GetBytes(t.id));
+                        PendingTransactions.pendingTransactions.RemoveAll(x => ((Transaction)x[0]).id.SequenceEqual(t.id));
+                        continue;
+                    }
+
+                    if (cur_time - tx_time > 40) // if the transaction is pending for over 40 seconds, resend
+                    {
+                        CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.newTransaction, t.getBytes(), null);
+                        PendingTransactions.pendingTransactions[idx][1] = cur_time;
+                    }
+                    idx++;
+                }
+            }
+        }
+
     }
 }

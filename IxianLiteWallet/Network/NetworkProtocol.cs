@@ -180,6 +180,7 @@ namespace LW.Network
                         break;
 
                     case ProtocolMessageCode.newTransaction:
+                    case ProtocolMessageCode.transactionData:
                         {
                             Transaction tx = new Transaction(data, true);
 

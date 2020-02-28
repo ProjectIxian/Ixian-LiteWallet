@@ -62,7 +62,7 @@ namespace LW.Meta
             Console.WriteLine("Connecting to Ixian network...");
 
             string headers_path = "";
-            if (CoreConfig.isTestNet)
+            if (!CoreConfig.isTestNet)
             {
                 headers_path = "headers";
             }

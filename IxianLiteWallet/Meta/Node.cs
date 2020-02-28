@@ -61,8 +61,18 @@ namespace LW.Meta
 
             Console.WriteLine("Connecting to Ixian network...");
 
+            string headers_path = "";
+            if (CoreConfig.isTestNet)
+            {
+                headers_path = "headers";
+            }
+            else
+            {
+                headers_path = "testnet-headers";
+            }
+
             // Start TIV
-            tiv = new TransactionInclusion();
+            tiv = new TransactionInclusion(headers_path);
         }
 
         private bool initWallet()

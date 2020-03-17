@@ -69,9 +69,10 @@ namespace LW.Meta
             else
             {
                 headers_path = "testnet-headers";
+                PeerStorage.init("", "testner-peers.ixi");
             }
 
-            // Start TIV
+            // Init TIV
             tiv = new TransactionInclusion(headers_path);
         }
 
@@ -184,6 +185,8 @@ namespace LW.Meta
             // Start the keepalive thread
             //PresenceList.startKeepAlive();
 
+            // Start TIV
+            tiv.start();
         }
 
         static public void test()
@@ -212,7 +215,9 @@ namespace LW.Meta
             Console.WriteLine("Network Block Height: {0}", IxianHandler.getHighestKnownNetworkBlockHeight());
 
             int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
-            Console.WriteLine("Connections: {0}\n", connectionsOut);
+            Console.WriteLine("Connections: {0}", connectionsOut);
+
+            Console.WriteLine("Pending transactions: {0}\n", PendingTransactions.pendingTransactionCount());
         }
 
         static public void getBalance()
@@ -251,7 +256,7 @@ namespace LW.Meta
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
             if (IxianHandler.addTransaction(transaction))
             {
-                Console.WriteLine("Transaction sent: {0}\n", transaction.id);
+                Console.WriteLine("Sending transaction, txid: {0}\n", transaction.id);
             }else
             {
                 Console.WriteLine("Could not send transaction\n");

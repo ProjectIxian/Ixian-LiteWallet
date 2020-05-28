@@ -1,0 +1,25 @@
+This is all requirements for :
+
+Windows PCs :
+
+CPU : Intel  / AMD 
+GPU : Nothing needed
+OpenGL : OpenGL V
+Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+RAM : 1 Go or more
+
+Linux PCs :
+
+CPU : Intel  / AMD 
+GPU : Nothing needed
+OpenGL : OpenGL V
+Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+RAM : 1 Go or more
+
+MAC PCs :
+
+CPU : Intel  / AMD 
+GPU : Nothing needed
+OpenGL : OpenGL V
+Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+RAM : 1 Go or more

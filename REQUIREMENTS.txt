@@ -19,11 +19,20 @@ Android Phones !
   RAM : NO INFORMATIONS
   
   
+Debian PCs :
+  
+  CPU : Intel  / AMD 
+  GPU : Nothing needed
+  OpenGL : NO INFORMATIONS
+  Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
+  RAM : 1 Go or more
+  
+  
 iOS Phones :
   
   CPU : NO INFORMATIONS
-  GPU :
-  OpenGL : 
+  GPU : NO INFORMATIONS
+  OpenGL : NO INFORMATIONS
   Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
   RAM : NO INFORMATIONS
   
@@ -38,6 +47,15 @@ Linux PCs :
   
   
 MAC PCs :
+  
+  CPU : Intel  / AMD 
+  GPU : Nothing needed
+  OpenGL : OpenGL version 
+  Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+  RAM : 1 Go or more
+  
+  
+Ubuntu PCs :
   
   CPU : Intel  / AMD 
   GPU : Nothing needed

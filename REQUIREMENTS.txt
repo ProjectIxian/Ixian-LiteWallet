@@ -1,25 +1,64 @@
 This is all requirements for :
 
-Windows PCs :
 
-CPU : Intel  / AMD 
-GPU : Nothing needed
-OpenGL : OpenGL V
-Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
-RAM : 1 Go or more
-
+Android PCs :
+  
+  CPU : NO INFORMATIONS 
+  GPU : NO INFORMATIONS
+  OpenGL : NO INFORMATIONS
+  Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
+  RAM : NO INFORMATIONS
+  
+  
+Android Phones !
+  
+  CPU : NO INFORMATIONS
+  GPU : NO INFORMATIONS
+  OpenGL : NO INFORMATIONS
+  Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
+  RAM : NO INFORMATIONS
+  
+  
+iOS Phones :
+  
+  CPU : NO INFORMATIONS
+  GPU :
+  OpenGL : 
+  Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
+  RAM : NO INFORMATIONS
+  
+  
 Linux PCs :
-
-CPU : Intel  / AMD 
-GPU : Nothing needed
-OpenGL : OpenGL V
-Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
-RAM : 1 Go or more
-
+  
+  CPU : Intel  / AMD 
+  GPU : Nothing needed
+  OpenGL : OpenGL version 
+  Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+  RAM : 1 Go or more
+  
+  
 MAC PCs :
-
-CPU : Intel  / AMD 
-GPU : Nothing needed
-OpenGL : OpenGL V
-Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
-RAM : 1 Go or more
+  
+  CPU : Intel  / AMD 
+  GPU : Nothing needed
+  OpenGL : OpenGL version 
+  Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+  RAM : 1 Go or more
+  
+  
+Windows PCs :
+  
+  CPU : Intel  / AMD 
+  GPU : Nothing needed
+  OpenGL : OpenGL version 
+  Disk Space Minimum ( for the files + the wallet file ) : 100 Mo
+  RAM : 1 Go or more
+  
+  
+Windows Phones :
+  
+  CPU : NO INFORMATIONS
+  GPU : NO INFORMATIONS
+  OpenGL : NO INFORMATIONS
+  Disk Space Minimum ( for the files + the wallet file ) : NO INFORMATIONS
+  RAM : NO INFORMATIONS

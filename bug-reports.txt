@@ -1,0 +1,8 @@
+In this file, you can send your bug reports about the Lite Wallet ( you can only send your bug reports of the lite wallet ).
+Your bug report would be like :
+
+Bug Report Number : ActualBugReportNumber + 1 ( if the ActualBugReportNumber is to 0, your bug report nummber will be the number 1 if the ActualBugReportNumber is to 1, your report number will be the number 2 ... )
+My discord nickname : UserNickname+UserID
+My mail : mail
+Report : Report
+How i find the bug : HowYouFindTheBug

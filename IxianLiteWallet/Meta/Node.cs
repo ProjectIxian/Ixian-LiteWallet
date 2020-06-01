@@ -61,19 +61,8 @@ namespace LW.Meta
 
             Console.WriteLine("Connecting to Ixian network...");
 
-            string headers_path = "";
-            if (!CoreConfig.isTestNet)
-            {
-                headers_path = "headers";
-            }
-            else
-            {
-                headers_path = "testnet-headers";
-                PeerStorage.init("", "testner-peers.ixi");
-            }
-
             // Init TIV
-            tiv = new TransactionInclusion(headers_path);
+            tiv = new TransactionInclusion();
         }
 
         private bool initWallet()
@@ -185,8 +174,18 @@ namespace LW.Meta
             // Start the keepalive thread
             //PresenceList.startKeepAlive();
 
+            string headers_path = "";
+            if (!CoreConfig.isTestNet)
+            {
+                headers_path = "headers";
+            }
+            else
+            {
+                headers_path = "testnet-headers";
+                PeerStorage.init("", "testner-peers.ixi");
+            }
             // Start TIV
-            tiv.start();
+            tiv.start(headers_path);
         }
 
         static public void test()

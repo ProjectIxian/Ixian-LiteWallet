@@ -28,10 +28,6 @@ namespace IxianLiteWallet
 
         static void onStart(string[] args)
         {
-
-            // Initialize the crypto manager
-            CryptoManager.initLib();
-
             // Initialize the node
             node = new Node();
 

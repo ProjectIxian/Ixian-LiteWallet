@@ -3,6 +3,7 @@ This is all requirements for :
 
 Android PCs :
   
+  OS Version : 
   CPU : NO INFORMATIONS 
   GPU : NO INFORMATIONS
   OpenGL : NO INFORMATIONS
@@ -10,8 +11,9 @@ Android PCs :
   RAM : NO INFORMATIONS
   
   
-Android Phones !
+Android Phones :
   
+  OS Version : 
   CPU : NO INFORMATIONS
   GPU : NO INFORMATIONS
   OpenGL : NO INFORMATIONS
@@ -21,6 +23,7 @@ Android Phones !
   
 iOS Phones :
   
+  OS Version : 
   CPU : NO INFORMATIONS
   GPU :
   OpenGL : 
@@ -30,6 +33,7 @@ iOS Phones :
   
 Linux PCs :
   
+  OS Version : 
   CPU : Intel  / AMD 
   GPU : Nothing needed
   OpenGL : OpenGL version 
@@ -39,6 +43,7 @@ Linux PCs :
   
 MAC PCs :
   
+  OS Version : 
   CPU : Intel  / AMD 
   GPU : Nothing needed
   OpenGL : OpenGL version 
@@ -48,6 +53,7 @@ MAC PCs :
   
 Windows PCs :
   
+  OS Version : Windows 8 ( minimum )
   CPU : Intel  / AMD 
   GPU : Nothing needed
   OpenGL : OpenGL version 
@@ -57,6 +63,7 @@ Windows PCs :
   
 Windows Phones :
   
+  OS Version : 
   CPU : NO INFORMATIONS
   GPU : NO INFORMATIONS
   OpenGL : NO INFORMATIONS

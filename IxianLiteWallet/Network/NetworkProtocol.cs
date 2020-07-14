@@ -184,7 +184,10 @@ namespace LW.Network
                         {
                             Transaction tx = new Transaction(data, true);
 
-                            PendingTransactions.increaseReceivedCount(tx.id);
+                            if (endpoint.presenceAddress.type == 'M')
+                            {
+                                PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
+                            }
 
                             Node.tiv.receivedNewTransaction(tx);
                             Console.WriteLine("Received new transaction {0}", tx.id);

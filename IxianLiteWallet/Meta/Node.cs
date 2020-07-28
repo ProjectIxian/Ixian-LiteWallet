@@ -34,6 +34,7 @@ namespace LW.Meta
         public static ulong networkBlockHeight = 0;
         public static byte[] networkBlockChecksum = null;
         public static int networkBlockVersion = 0;
+        private bool generatedNewWallet = false;
 
         public Node()
         {
@@ -88,6 +89,7 @@ namespace LW.Meta
                     }
                 }
                 walletStorage.generateWallet(password);
+                generatedNewWallet = true;
             }
             else
             {
@@ -174,18 +176,28 @@ namespace LW.Meta
             // Start the keepalive thread
             //PresenceList.startKeepAlive();
 
+            ulong block_height = 1;
+            byte[] block_checksum = null;
+
             string headers_path = "";
-            if (!CoreConfig.isTestNet)
-            {
-                headers_path = "headers";
-            }
-            else
+            if (CoreConfig.isTestNet)
             {
                 headers_path = "testnet-headers";
                 PeerStorage.init("", "testner-peers.ixi");
             }
+            else
+            {
+                headers_path = "headers";
+                if (generatedNewWallet || !walletStorage.walletExists())
+                {
+                    generatedNewWallet = false;
+                    block_height = Config.bakedBlockHeight;
+                    block_checksum = Config.bakedBlockChecksum;
+                }
+            }
+
             // Start TIV
-            tiv.start(headers_path);
+            tiv.start(headers_path, block_height, block_checksum);
         }
 
         static public void test()

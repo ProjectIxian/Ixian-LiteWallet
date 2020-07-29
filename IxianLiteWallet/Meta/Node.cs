@@ -171,7 +171,7 @@ namespace LW.Meta
             NetworkQueue.start();
 
             // Start the network client manager
-            NetworkClientManager.start();
+            NetworkClientManager.start(true);
 
             // Start the keepalive thread
             //PresenceList.startKeepAlive();

@@ -265,7 +265,7 @@ namespace LW.Meta
             byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
             to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
-            if (IxianHandler.addTransaction(transaction))
+            if (IxianHandler.addTransaction(transaction, true))
             {
                 Console.WriteLine("Sending transaction, txid: {0}\n", transaction.id);
             }else
@@ -340,8 +340,10 @@ namespace LW.Meta
             return tiv.getLastBlockHeader().version;
         }
 
-        public override bool addTransaction(Transaction tx)
+        public override bool addTransaction(Transaction tx, bool force_broadcast)
         {
+            // TODO Send to peer if directly connectable
+            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.newTransaction, tx.getBytes(), null);
             PendingTransactions.addPendingLocalTransaction(tx);
             return true;
         }

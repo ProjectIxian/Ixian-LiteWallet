@@ -7,7 +7,7 @@ namespace LW.Meta
         public static string walletFile = "ixian.wal";
         public static bool onlyShowAddresses = false;
 
-        public static readonly string version = "xlwc-0.7.1-dev"; // LiteWallet version
+        public static readonly string version = "xlwc-0.7.5-dev"; // LiteWallet version
 
         // Block height at which the current version of Spixi was generated
         // Useful for optimized block header sync

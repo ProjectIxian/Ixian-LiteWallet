@@ -111,12 +111,13 @@ namespace LW.Network
                                         endpoint.helloReceived = true;
                                         NetworkClientManager.recalculateLocalTimeDifference();
 
-                                        if (endpoint.presenceAddress.type == 'M')
+                                        if (endpoint.presenceAddress.type == 'M' || endpoint.presenceAddress.type == 'H')
                                         {
                                             Node.setNetworkBlock(last_block_num, block_checksum, block_version);
 
                                             // Get random presences
                                             endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
+                                            endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'H' });
 
                                             CoreProtocolMessage.subscribeToEvents(endpoint);
                                         }
@@ -152,6 +153,7 @@ namespace LW.Network
 
                                             // Get random presences
                                             endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'M' });
+                                            endpoint.sendData(ProtocolMessageCode.getRandomPresences, new byte[1] { (byte)'H' });
 
                                             CoreProtocolMessage.subscribeToEvents(endpoint);
                                         }

@@ -6,6 +6,7 @@ using LW.Meta;
 using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 
 namespace LW.Network
@@ -145,7 +146,7 @@ namespace LW.Network
                                         endpoint.helloReceived = true;
                                         NetworkClientManager.recalculateLocalTimeDifference();
 
-                                        if (endpoint.presenceAddress.type == 'M')
+                                        if (endpoint.presenceAddress.type == 'M' || endpoint.presenceAddress.type == 'H')
                                         {
                                             Node.setNetworkBlock(last_block_num, block_checksum, block_version);
 
@@ -160,7 +161,7 @@ namespace LW.Network
                         }
                         break;
 
-                        case ProtocolMessageCode.balance:
+                    case ProtocolMessageCode.balance:
                         {
                             using (MemoryStream m = new MemoryStream(data))
                             {
@@ -170,7 +171,7 @@ namespace LW.Network
                                     byte[] address = reader.ReadBytes(address_length);
 
                                     // Retrieve the latest balance
-                                    IxiNumber balance = reader.ReadString();
+                                    IxiNumber balance = new IxiNumber(reader.ReadString());
 
                                     if (address.SequenceEqual(Node.walletStorage.getPrimaryAddress()))
                                     {
@@ -180,6 +181,42 @@ namespace LW.Network
                                         if (block_height > Node.balance.blockHeight && (Node.balance.balance != balance || Node.balance.blockHeight == 0))
                                         {
                                             byte[] block_checksum = reader.ReadBytes(reader.ReadInt32());
+
+                                            Node.balance.address = address;
+                                            Node.balance.balance = balance;
+                                            Node.balance.blockHeight = block_height;
+                                            Node.balance.blockChecksum = block_checksum;
+                                            Node.balance.verified = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
+                    case ProtocolMessageCode.balance2:
+                        {
+                            using (MemoryStream m = new MemoryStream(data))
+                            {
+                                using (BinaryReader reader = new BinaryReader(m))
+                                {
+                                    int address_length = (int)reader.ReadIxiVarUInt();
+                                    byte[] address = reader.ReadBytes(address_length);
+
+                                    int balance_bytes_len = (int)reader.ReadIxiVarUInt();
+                                    byte[] balance_bytes = reader.ReadBytes(balance_bytes_len);
+
+                                    // Retrieve the latest balance
+                                    IxiNumber balance = new IxiNumber(new BigInteger(balance_bytes));
+
+                                    if (address.SequenceEqual(Node.walletStorage.getPrimaryAddress()))
+                                    {
+                                        // Retrieve the blockheight for the balance
+                                        ulong block_height = reader.ReadIxiVarUInt();
+
+                                        if (block_height > Node.balance.blockHeight && (Node.balance.balance != balance || Node.balance.blockHeight == 0))
+                                        {
+                                            byte[] block_checksum = reader.ReadBytes((int)reader.ReadIxiVarUInt());
 
                                             Node.balance.address = address;
                                             Node.balance.balance = balance;
@@ -231,7 +268,7 @@ namespace LW.Network
                         {
                             Transaction tx = new Transaction(data, true);
 
-                            if (endpoint.presenceAddress.type == 'M')
+                            if (endpoint.presenceAddress.type == 'M' || endpoint.presenceAddress.type == 'H')
                             {
                                 PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
                             }
@@ -239,6 +276,10 @@ namespace LW.Network
                             Node.tiv.receivedNewTransaction(tx);
                             Console.WriteLine("Received new transaction {0}", tx.id);
                         }
+                        break;
+
+                    case ProtocolMessageCode.bye:
+                        CoreProtocolMessage.processBye(data, endpoint);
                         break;
 
                     default:

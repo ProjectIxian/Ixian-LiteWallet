@@ -53,7 +53,7 @@ namespace IxianLiteWallet
 
                 if(line.Equals("help"))
                 {
-                    Console.WriteLine("IxianLiteWallet usage:");
+                    Console.WriteLine("Ixian LiteWallet usage:");
                     Console.WriteLine("\texit\t\t\t-exits the litewallet");
                     Console.WriteLine("\thelp\t\t\t-shows this help message");
                     Console.WriteLine("\tstatus\t\t\t-shows the number of connected DLT nodes");
@@ -67,13 +67,6 @@ namespace IxianLiteWallet
                     // generate new address, view all address balances
                     // change password
                     Console.WriteLine("");
-                    continue;
-                }
-
-                if(line.Equals("test"))
-                {
-                    Node.test();
-                    Console.WriteLine("\n");
                     continue;
                 }
 

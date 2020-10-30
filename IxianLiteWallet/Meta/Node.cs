@@ -39,7 +39,7 @@ namespace LW.Meta
         public Node()
         {
             CoreConfig.productVersion = Config.version;
-            IxianHandler.setHandler(this);
+            IxianHandler.init(this, NetworkType.main);
             init();
         }
 
@@ -47,8 +47,6 @@ namespace LW.Meta
         private void init()
         {
             Logging.consoleOutput = false;
-
-            CoreConfig.isTestNet = false;
 
             running = true;
 
@@ -153,9 +151,6 @@ namespace LW.Meta
             // Stop TIV
             tiv.stop();
 
-            // Stop the keepalive thread
-            //PresenceList.stopKeepAlive();
-
             // Stop the network queue
             NetworkQueue.stop();
 
@@ -173,14 +168,11 @@ namespace LW.Meta
             // Start the network client manager
             NetworkClientManager.start(2);
 
-            // Start the keepalive thread
-            //PresenceList.startKeepAlive();
-
-            ulong block_height = 1;
+            ulong block_height = 0;
             byte[] block_checksum = null;
 
             string headers_path = "";
-            if (CoreConfig.isTestNet)
+            if (IxianHandler.isTestNet)
             {
                 headers_path = "testnet-headers";
                 PeerStorage.init("", "testner-peers.ixi");
@@ -198,11 +190,6 @@ namespace LW.Meta
 
             // Start TIV
             tiv.start(headers_path, block_height, block_checksum);
-        }
-
-        static public void test()
-        {
-
         }
 
         static public void verifyTransaction(string txid)
@@ -343,7 +330,7 @@ namespace LW.Meta
         public override bool addTransaction(Transaction tx, bool force_broadcast)
         {
             // TODO Send to peer if directly connectable
-            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.newTransaction, tx.getBytes(), null);
+            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData, tx.getBytes(), null);
             PendingTransactions.addPendingLocalTransaction(tx);
             return true;
         }
@@ -418,7 +405,7 @@ namespace LW.Meta
 
                     if (cur_time - tx_time > 40) // if the transaction is pending for over 40 seconds, resend
                     {
-                        CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.newTransaction, t.getBytes(), null);
+                        CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData, t.getBytes(), null);
                         entry.addedTimestamp = cur_time;
                         entry.confirmedNodeList.Clear();
                     }
@@ -437,6 +424,5 @@ namespace LW.Meta
                 }
             }
         }
-
     }
 }

@@ -60,6 +60,8 @@ namespace LW.Meta
 
             Console.WriteLine("Connecting to Ixian network...");
 
+            PeerStorage.init("");
+
             // Init TIV
             tiv = new TransactionInclusion();
         }
@@ -168,28 +170,16 @@ namespace LW.Meta
             // Start the network client manager
             NetworkClientManager.start(2);
 
-            ulong block_height = 0;
-            byte[] block_checksum = null;
-
-            string headers_path = "";
-            if (IxianHandler.isTestNet)
+            // Start TIV
+            if (generatedNewWallet || !walletStorage.walletExists())
             {
-                headers_path = "testnet-headers";
-                PeerStorage.init("", "testner-peers.ixi");
+                generatedNewWallet = false;
+                tiv.start("");
             }
             else
             {
-                headers_path = "headers";
-                if (generatedNewWallet || !walletStorage.walletExists())
-                {
-                    generatedNewWallet = false;
-                    block_height = Config.bakedBlockHeight;
-                    block_checksum = Config.bakedBlockChecksum;
-                }
+                tiv.start("", 0, null);
             }
-
-            // Start TIV
-            tiv.start(headers_path, block_height, block_checksum);
         }
 
         static public void verifyTransaction(string txid)

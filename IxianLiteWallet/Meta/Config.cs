@@ -1,6 +1,4 @@
-﻿using IXICore;
-
-namespace LW.Meta
+﻿namespace LW.Meta
 {
     class Config
     {

@@ -1,5 +1,4 @@
-﻿using IxianLiteWallet;
-using IXICore;
+﻿using IXICore;
 using IXICore.Meta;
 using IXICore.Network;
 using IXICore.Utils;
@@ -54,7 +53,7 @@ namespace LW.Meta
             if (!initWallet())
             {
                 running = false;
-                IxianLiteWallet.Program.noStart = true;
+                IxianLiteWallet.Program.running = false;
                 return;
             }
 
@@ -147,7 +146,6 @@ namespace LW.Meta
 
         static public void stop()
         {
-            Program.noStart = true;
             IxianHandler.forceShutdown = true;
 
             // Stop TIV
@@ -195,17 +193,6 @@ namespace LW.Meta
 
             // TODO
             //tiv.verifyTransactionInclusion(txid);
-        }
-
-        static public void status()
-        {
-            Console.WriteLine("Last Block Height: {0}", IxianHandler.getLastBlockHeight());
-            Console.WriteLine("Network Block Height: {0}", IxianHandler.getHighestKnownNetworkBlockHeight());
-
-            int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
-            Console.WriteLine("Connections: {0}", connectionsOut);
-
-            Console.WriteLine("Pending transactions: {0}\n", PendingTransactions.pendingTransactionCount());
         }
 
         static public void getBalance()

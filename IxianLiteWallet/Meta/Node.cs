@@ -37,8 +37,7 @@ namespace LW.Meta
 
         public Node()
         {
-            CoreConfig.productVersion = Config.version;
-            IxianHandler.init(this, NetworkType.main);
+            IxianHandler.init(Config.version, this, NetworkType.main);
             init();
         }
 

@@ -76,7 +76,6 @@ namespace LW.Meta
                 ConsoleHelpers.displayBackupText();
 
                 // Request a password
-                // NOTE: This can only be done in testnet to enable automatic testing!
                 string password = "";
                 while (password.Length < 10)
                 {
@@ -98,7 +97,6 @@ namespace LW.Meta
                 while (!success)
                 {
 
-                    // NOTE: This is only permitted on the testnet for dev/testing purposes!
                     string password = "";
                     if (password.Length < 10)
                     {
@@ -178,21 +176,6 @@ namespace LW.Meta
             {
                 tiv.start("", 0, null);
             }
-        }
-
-        static public void verifyTransaction(string txid)
-        {
-             int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
-             if(connectionsOut < 3)
-             {
-                 Console.WriteLine("Need at least 3 node connections to verify transactions.");
-                 return;
-             }
-
-            Console.WriteLine("Posting Transaction Inclusion Verification request for {0}", txid);
-
-            // TODO
-            //tiv.verifyTransactionInclusion(txid);
         }
 
         static public void getBalance()

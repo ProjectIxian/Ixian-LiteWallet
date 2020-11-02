@@ -1,5 +1,6 @@
 ﻿using IXICore;
 using IXICore.Meta;
+using IXICore.Network;
 using IXICore.Utils;
 using LW.Meta;
 using System;
@@ -201,7 +202,18 @@ namespace IxianLiteWallet
             }
 
             string txid = split[1];
-            Node.verifyTransaction(txid);
+
+            int connectionsOut = NetworkClientManager.getConnectedClients(true).Count();
+            if (connectionsOut < 3)
+            {
+                Console.WriteLine("Need at least 3 node connections to verify transactions.");
+                return;
+            }
+
+            Console.WriteLine("Posting Transaction Inclusion Verification request for {0}", txid);
+
+            // TODO
+            //tiv.verifyTransactionInclusion(txid);
         }
 
         void handleStatus()

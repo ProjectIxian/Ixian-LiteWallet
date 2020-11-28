@@ -239,23 +239,10 @@ namespace LW.Network
                         }
                         break;
 
-                    case ProtocolMessageCode.blockHeaders:
-                        {
-                            // Forward the block headers to the TIV handler
-                            Node.tiv.receivedBlockHeaders(data, endpoint);
-                        }
-                        break;
-
                     case ProtocolMessageCode.blockHeaders2:
                         {
                             // Forward the block headers to the TIV handler
                             Node.tiv.receivedBlockHeaders2(data, endpoint);
-                        }
-                        break;
-
-                    case ProtocolMessageCode.pitData:
-                        {
-                            Node.tiv.receivedPIT(data, endpoint);
                         }
                         break;
 
@@ -276,7 +263,7 @@ namespace LW.Network
                             }
 
                             Node.tiv.receivedNewTransaction(tx);
-                            Console.WriteLine("Received new transaction {0}", tx.id);
+                            Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
                         }
                         break;
 

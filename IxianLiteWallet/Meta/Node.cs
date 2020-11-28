@@ -179,16 +179,16 @@ namespace LW.Meta
 
         static public void getBalance()
         {
-            ProtocolMessage.setWaitFor(ProtocolMessageCode.balance);
+            ProtocolMessage.setWaitFor(ProtocolMessageCode.balance2);
 
             // Return the balance for the matching address
             using (MemoryStream mw = new MemoryStream())
             {
                 using (BinaryWriter writer = new BinaryWriter(mw))
                 {
-                    writer.Write(Node.walletStorage.getPrimaryAddress().Length);
+                    writer.WriteIxiVarInt(Node.walletStorage.getPrimaryAddress().Length);
                     writer.Write(Node.walletStorage.getPrimaryAddress());
-                    NetworkClientManager.broadcastData(new char[] { 'M', 'H' }, ProtocolMessageCode.getBalance, mw.ToArray(), null);
+                    NetworkClientManager.broadcastData(new char[] { 'M', 'H' }, ProtocolMessageCode.getBalance2, mw.ToArray(), null);
                 }
             }
             ProtocolMessage.wait(30);
@@ -213,7 +213,7 @@ namespace LW.Meta
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
             if (IxianHandler.addTransaction(transaction, true))
             {
-                Console.WriteLine("Sending transaction, txid: {0}\n", transaction.id);
+                Console.WriteLine("Sending transaction, txid: {0}\n", Transaction.txIdV8ToLegacy(transaction.id));
             }else
             {
                 Console.WriteLine("Could not send transaction\n");
@@ -228,7 +228,7 @@ namespace LW.Meta
             networkBlockVersion = block_version;
         }
 
-        public override void receivedTransactionInclusionVerificationResponse(string txid, bool verified)
+        public override void receivedTransactionInclusionVerificationResponse(byte[] txid, bool verified)
         {
             string status = "NOT VERIFIED";
             if (verified)
@@ -237,7 +237,7 @@ namespace LW.Meta
                 PendingTransactions.remove(txid);
             }
 
-            Console.WriteLine("Transaction {0} is {1}\n",txid, status);
+            Console.WriteLine("Transaction {0} is {1}\n", Transaction.txIdV8ToLegacy(txid), status);
         }
 
         public override void receivedBlockHeader(BlockHeader block_header, bool verified)
@@ -357,7 +357,7 @@ namespace LW.Meta
                     // if transaction expired, remove it from pending transactions
                     if (last_block_height > ConsensusConfig.getRedactedWindowSize() && t.blockHeight < last_block_height - ConsensusConfig.getRedactedWindowSize())
                     {
-                        Console.WriteLine("Error sending the transaction {0}", Encoding.UTF8.GetBytes(t.id));
+                        Console.WriteLine("Error sending the transaction {0}", Transaction.txIdV8ToLegacy(t.id));
                         PendingTransactions.pendingTransactions.RemoveAll(x => x.transaction.id.SequenceEqual(t.id));
                         continue;
                     }
@@ -376,7 +376,7 @@ namespace LW.Meta
 
                     if (cur_time - tx_time > 20) // if the transaction is pending for over 20 seconds, send inquiry
                     {
-                        CoreProtocolMessage.broadcastGetTransaction(t.id, 0);
+                        CoreProtocolMessage.broadcastGetTransaction(Transaction.txIdV8ToLegacy(t.id), 0);
                     }
 
                     idx++;

@@ -1,4 +1,5 @@
-﻿using IXICore;
+﻿using IxianLiteWallet;
+using IXICore;
 using IXICore.Meta;
 using IXICore.Network;
 using IXICore.Utils;
@@ -262,8 +263,13 @@ namespace LW.Network
                                 PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
                             }
 
-                            Node.tiv.receivedNewTransaction(tx);
-                            Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
+                            if(Node.tiv.receivedNewTransaction(tx))
+                            {
+                                if (!Program.commands.stressRunning)
+                                {
+                                    Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
+                                }
+                            }
                         }
                         break;
 
@@ -278,7 +284,7 @@ namespace LW.Network
             }
             catch (Exception e)
             {
-                Logging.error(string.Format("Error parsing network message. Details: {0}", e.ToString()));
+                Logging.error("Error parsing network message. Details: {0}", e);
             }
 
             if(waitingFor == code)

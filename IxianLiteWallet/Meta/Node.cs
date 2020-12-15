@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace LW.Meta
 {
@@ -236,7 +235,6 @@ namespace LW.Meta
                 status = "VERIFIED";
                 PendingTransactions.remove(txid);
             }
-
             Console.WriteLine("Transaction {0} is {1}\n", Transaction.txIdV8ToLegacy(txid), status);
         }
 

@@ -6,11 +6,16 @@ using LW.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace IxianLiteWallet
 {
     class Commands
     {
+        public bool stressRunning { get; private set; } = false;
+        int stressTargetTps = 5;
+        int stressTxCount = 100;
+
         public Commands()
         {
 
@@ -66,6 +71,10 @@ namespace IxianLiteWallet
 
                 case "verify":
                     handleVerify(line);
+                    break;
+
+                case "stress":
+                    handleStress(line);
                     break;
             }
         }
@@ -225,6 +234,65 @@ namespace IxianLiteWallet
             Console.WriteLine("Connections: {0}", connectionsOut);
 
             Console.WriteLine("Pending transactions: {0}\n", PendingTransactions.pendingTransactionCount());
+        }
+
+        void handleStress(string line)
+        {
+            string[] split = line.Split(new string[] { " " }, StringSplitOptions.None);
+            if (split.Count() < 4)
+            {
+                Console.WriteLine("Incorrect parameters for stress test, TPS, total transactions and to address is required.\n");
+                return;
+            }
+
+            stressTargetTps = Int32.Parse(split[1]);
+            stressTxCount = Int32.Parse(split[2]);
+            byte[] to = Base58Check.Base58CheckEncoding.DecodePlain(split[3]);
+
+            new Thread(() =>
+           {
+               Thread.CurrentThread.IsBackground = true;
+
+               if(stressRunning == true)
+               {
+                   return;
+               }
+
+               stressRunning = true;
+               try
+               {
+                   IxiNumber amount = ConsensusConfig.transactionPrice;
+                   IxiNumber fee = ConsensusConfig.transactionPrice;
+                   byte[] from = Node.walletStorage.getPrimaryAddress();
+                   byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
+
+                   long start_time = Clock.getTimestampMillis();
+                   int spam_counter = 0;
+                   for (int i = 0; i < stressTxCount; i++)
+                   {
+                       Transaction transaction = new Transaction((int)Transaction.Type.Normal, amount, fee, to, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
+                       IxianHandler.addTransaction(transaction, true);
+
+                       spam_counter++;
+                       if (spam_counter >= stressTargetTps)
+                       {
+                           Console.WriteLine("Stress: Sent " + spam_counter + " transactions.");
+                           long elapsed = Clock.getTimestampMillis() - start_time;
+                           if (elapsed < 1000)
+                           {
+                               Thread.Sleep(1000 - (int)elapsed);
+                           }
+                           spam_counter = 0;
+                           start_time = Clock.getTimestampMillis();
+                       }
+                   }
+               }
+               catch (Exception e)
+               {
+                   Logging.error("Exception occured during stress test: {0}", e);
+               }
+               stressRunning = false;
+           }).Start();
         }
     }
 }

@@ -11,6 +11,8 @@ namespace IxianLiteWallet
 
         private static Node node = null;
 
+        public static Commands commands = null;
+
         static void Main(string[] args)
         {
             // Clear the console first
@@ -27,6 +29,8 @@ namespace IxianLiteWallet
         {
             running = true;
 
+            commands = new Commands();
+
             // Initialize the node
             node = new Node();
 
@@ -37,14 +41,13 @@ namespace IxianLiteWallet
         static void mainLoop()
         {
             Console.WriteLine("Type help to see a list of available commands.\n");
-            var cmd = new Commands();
             while (running && !IxianHandler.forceShutdown)
             {
                 Console.Write("IxianLiteWallet>");
                 string line = Console.ReadLine();
                 Console.WriteLine("");
 
-                cmd.handleCommand(line);
+                commands.handleCommand(line);
             }
         }
 

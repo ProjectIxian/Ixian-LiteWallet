@@ -246,7 +246,22 @@ namespace IxianLiteWallet
             }
 
             stressTargetTps = Int32.Parse(split[1]);
+            if(stressTargetTps > 50)
+            {
+                stressTargetTps = 50;
+            }
+
             stressTxCount = Int32.Parse(split[2]);
+            if(stressTxCount > 10000)
+            {
+                stressTxCount = 10000;
+            }
+
+            if (stressRunning == true)
+            {
+                return;
+            }
+
             byte[] to = Base58Check.Base58CheckEncoding.DecodePlain(split[3]);
 
             new Thread(() =>

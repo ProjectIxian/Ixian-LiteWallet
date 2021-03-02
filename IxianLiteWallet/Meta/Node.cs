@@ -370,7 +370,7 @@ namespace LW.Meta
 
                     if (cur_time - tx_time > 20) // if the transaction is pending for over 20 seconds, send inquiry
                     {
-                        CoreProtocolMessage.broadcastGetTransaction(Transaction.txIdV8ToLegacy(t.id), 0);
+                        CoreProtocolMessage.broadcastGetTransaction(t.id, 0);
                     }
 
                     idx++;

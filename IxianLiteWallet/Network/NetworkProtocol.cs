@@ -174,7 +174,7 @@ namespace LW.Network
                     case ProtocolMessageCode.updatePresence:
                         {
                             // Parse the data and update entries in the presence list
-                            PresenceList.updateFromBytes(data);
+                            PresenceList.updateFromBytes(data, 0);
                         }
                         break;
 
@@ -191,7 +191,6 @@ namespace LW.Network
                         }
                         break;
 
-                    case ProtocolMessageCode.newTransaction:
                     case ProtocolMessageCode.transactionData:
                         {
                             Transaction tx = new Transaction(data, true);

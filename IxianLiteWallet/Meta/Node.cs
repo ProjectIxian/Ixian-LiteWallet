@@ -318,11 +318,6 @@ namespace LW.Meta
             IxianHandler.forceShutdown = true;
         }
 
-        public override WalletStorage getWalletStorage()
-        {
-            return walletStorage;
-        }
-
         public override void parseProtocolMessage(ProtocolMessageCode code, byte[] data, RemoteEndpoint endpoint)
         {
             ProtocolMessage.parseProtocolMessage(code, data, endpoint);
@@ -376,6 +371,11 @@ namespace LW.Meta
                     idx++;
                 }
             }
+        }
+
+        public override BlockHeader getBlockHeader(ulong blockNum)
+        {
+            return BlockHeaderStorage.getBlockHeader(blockNum);
         }
     }
 }

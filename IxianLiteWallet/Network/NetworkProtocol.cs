@@ -114,7 +114,7 @@ namespace LW.Network
                                     // Retrieve the latest balance
                                     IxiNumber balance = new IxiNumber(reader.ReadString());
 
-                                    if (address.SequenceEqual(Node.walletStorage.getPrimaryAddress()))
+                                    if (address.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress()))
                                     {
                                         // Retrieve the blockheight for the balance
                                         ulong block_height = reader.ReadUInt64();
@@ -150,7 +150,7 @@ namespace LW.Network
                                     // Retrieve the latest balance
                                     IxiNumber balance = new IxiNumber(new BigInteger(balance_bytes));
 
-                                    if (address.SequenceEqual(Node.walletStorage.getPrimaryAddress()))
+                                    if (address.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress()))
                                     {
                                         // Retrieve the blockheight for the balance
                                         ulong block_height = reader.ReadIxiVarUInt();

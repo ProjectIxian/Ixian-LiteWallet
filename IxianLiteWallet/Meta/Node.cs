@@ -23,8 +23,6 @@ namespace LW.Meta
     {
         public static bool running = false;
 
-        public static WalletStorage walletStorage;
-
         public static Balance balance = new Balance();      // Stores the last known balance for this node
 
         public static TransactionInclusion tiv = null;
@@ -65,7 +63,7 @@ namespace LW.Meta
 
         private bool initWallet()
         {
-            walletStorage = new WalletStorage(Config.walletFile);
+            WalletStorage walletStorage = new WalletStorage(Config.walletFile);
 
             Logging.flush();
 
@@ -137,6 +135,14 @@ namespace LW.Meta
                 return false;
             }
 
+            if (walletStorage.viewingWallet)
+            {
+                Logging.error("Viewing-only wallet {0} cannot be used as the primary DLT Node wallet.", Base58Check.Base58CheckEncoding.EncodePlain(walletStorage.getPrimaryAddress()));
+                return false;
+            }
+
+            IxianHandler.addWallet(walletStorage);
+
             return true;
         }
 
@@ -165,7 +171,7 @@ namespace LW.Meta
             NetworkClientManager.start(2);
 
             // Start TIV
-            if (generatedNewWallet || !walletStorage.walletExists())
+            if (generatedNewWallet || !File.Exists(Config.walletFile))
             {
                 generatedNewWallet = false;
                 tiv.start("");
@@ -185,8 +191,8 @@ namespace LW.Meta
             {
                 using (BinaryWriter writer = new BinaryWriter(mw))
                 {
-                    writer.WriteIxiVarInt(Node.walletStorage.getPrimaryAddress().Length);
-                    writer.Write(Node.walletStorage.getPrimaryAddress());
+                    writer.WriteIxiVarInt(IxianHandler.getWalletStorage().getPrimaryAddress().Length);
+                    writer.Write(IxianHandler.getWalletStorage().getPrimaryAddress());
                     NetworkClientManager.broadcastData(new char[] { 'M', 'H' }, ProtocolMessageCode.getBalance2, mw.ToArray(), null);
                 }
             }
@@ -206,8 +212,8 @@ namespace LW.Meta
             SortedDictionary<byte[], IxiNumber> to_list = new SortedDictionary<byte[], IxiNumber>(new ByteArrayComparer());
 
             IxiNumber fee = ConsensusConfig.transactionPrice;
-            byte[] from = Node.walletStorage.getPrimaryAddress();
-            byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
+            byte[] from = IxianHandler.getWalletStorage().getPrimaryAddress();
+            byte[] pubKey = IxianHandler.getWalletStorage().getPrimaryPublicKey();
             to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
             if (IxianHandler.addTransaction(transaction, true))

@@ -110,12 +110,12 @@ namespace IxianLiteWallet
 
         void handleAddress()
         {
-            Console.WriteLine("Primary address: {0}\n", Base58Check.Base58CheckEncoding.EncodePlain(Node.walletStorage.getPrimaryAddress()));
+            Console.WriteLine("Primary address: {0}\n", Base58Check.Base58CheckEncoding.EncodePlain(IxianHandler.getWalletStorage().getPrimaryAddress()));
         }
 
         void handleAddresses()
         {
-            List<Address> address_list = Node.walletStorage.getMyAddresses();
+            List<Address> address_list = IxianHandler.getWalletStorage().getMyAddresses();
 
             foreach (Address addr in address_list)
             {
@@ -127,7 +127,7 @@ namespace IxianLiteWallet
         void handleBackup()
         {
             List<byte> wallet = new List<byte>();
-            wallet.AddRange(Node.walletStorage.getRawWallet());
+            wallet.AddRange(IxianHandler.getWalletStorage().getRawWallet());
             Console.WriteLine("IXIHEX" + Crypto.hashToString(wallet.ToArray()));
             Console.WriteLine("");
         }
@@ -151,8 +151,7 @@ namespace IxianLiteWallet
                 }
 
                 // Read the wallet using the provided password
-                Node.walletStorage = new WalletStorage(Config.walletFile);
-                if (Node.walletStorage.readWallet(password))
+                if (IxianHandler.getWalletStorage().isValidPassword(password))
                 {
                     success = true;
                 }
@@ -171,7 +170,7 @@ namespace IxianLiteWallet
                     continue;
                 }
             }
-            if (Node.walletStorage.writeWallet(new_password))
+            if (IxianHandler.getWalletStorage().writeWallet(new_password))
                 Console.WriteLine("Wallet password changed.");
         }
 
@@ -278,8 +277,8 @@ namespace IxianLiteWallet
                {
                    IxiNumber amount = ConsensusConfig.transactionPrice;
                    IxiNumber fee = ConsensusConfig.transactionPrice;
-                   byte[] from = Node.walletStorage.getPrimaryAddress();
-                   byte[] pubKey = Node.walletStorage.getPrimaryPublicKey();
+                   byte[] from = IxianHandler.getWalletStorage().getPrimaryAddress();
+                   byte[] pubKey = IxianHandler.getWalletStorage().getPrimaryPublicKey();
 
                    long start_time = Clock.getTimestampMillis();
                    int spam_counter = 0;

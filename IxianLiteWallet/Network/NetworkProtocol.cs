@@ -204,7 +204,7 @@ namespace LW.Network
                             {
                                 if (!Program.commands.stressRunning)
                                 {
-                                    Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
+                                    //Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
                                 }
                             }
                         }

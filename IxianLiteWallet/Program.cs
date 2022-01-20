@@ -7,6 +7,8 @@ namespace IxianLiteWallet
 {
     class Program
     {
+        public static bool noStart = false;
+
         public static bool running = false;
 
         private static Node node = null;
@@ -15,19 +17,28 @@ namespace IxianLiteWallet
 
         static void Main(string[] args)
         {
-            // Clear the console first
-            Console.Clear();
+            if(!onStart(args))
+            {
+                return;
+            }
 
-            Console.WriteLine("Ixian Lite Wallet {0} ({1})", Config.version, CoreConfig.version);
-
-            onStart(args);
             mainLoop();
             onStop();
         }
 
-        static void onStart(string[] args)
+        static bool onStart(string[] args)
         {
             running = true;
+
+            Console.WriteLine("Ixian Lite Wallet {0} ({1})", Config.version, CoreConfig.version);
+
+            // Read configuration from command line
+            Config.init(args);
+
+            if (noStart)
+            {
+                return false;
+            }
 
             commands = new Commands();
 
@@ -36,6 +47,8 @@ namespace IxianLiteWallet
 
             // Start the node
             node.start();
+
+            return true;
         }
 
         static void mainLoop()

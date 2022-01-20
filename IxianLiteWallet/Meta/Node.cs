@@ -138,7 +138,7 @@ namespace LW.Meta
 
             if (walletStorage.viewingWallet)
             {
-                Logging.error("Viewing-only wallet {0} cannot be used as the primary DLT Node wallet.", Base58Check.Base58CheckEncoding.EncodePlain(walletStorage.getPrimaryAddress()));
+                Logging.error("Viewing-only wallet {0} cannot be used as the primary wallet.", Base58Check.Base58CheckEncoding.EncodePlain(walletStorage.getPrimaryAddress()));
                 return false;
             }
 

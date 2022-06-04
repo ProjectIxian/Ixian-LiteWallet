@@ -109,12 +109,12 @@ namespace LW.Network
                                 using (BinaryReader reader = new BinaryReader(m))
                                 {
                                     int address_length = reader.ReadInt32();
-                                    byte[] address = reader.ReadBytes(address_length);
+                                    Address address = new Address(reader.ReadBytes(address_length));
 
                                     // Retrieve the latest balance
                                     IxiNumber balance = new IxiNumber(reader.ReadString());
 
-                                    if (address.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress()))
+                                    if (address.addressNoChecksum.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum))
                                     {
                                         // Retrieve the blockheight for the balance
                                         ulong block_height = reader.ReadUInt64();
@@ -142,7 +142,7 @@ namespace LW.Network
                                 using (BinaryReader reader = new BinaryReader(m))
                                 {
                                     int address_length = (int)reader.ReadIxiVarUInt();
-                                    byte[] address = reader.ReadBytes(address_length);
+                                    Address address = new Address(reader.ReadBytes(address_length));
 
                                     int balance_bytes_len = (int)reader.ReadIxiVarUInt();
                                     byte[] balance_bytes = reader.ReadBytes(balance_bytes_len);
@@ -150,7 +150,7 @@ namespace LW.Network
                                     // Retrieve the latest balance
                                     IxiNumber balance = new IxiNumber(new BigInteger(balance_bytes));
 
-                                    if (address.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress()))
+                                    if (address.addressNoChecksum.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum))
                                     {
                                         // Retrieve the blockheight for the balance
                                         ulong block_height = reader.ReadIxiVarUInt();
@@ -200,11 +200,30 @@ namespace LW.Network
                                 PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
                             }
 
-                            if(Node.tiv.receivedNewTransaction(tx))
+                            if (Node.tiv.receivedNewTransaction(tx))
                             {
                                 if (!Program.commands.stressRunning)
                                 {
-                                    //Console.WriteLine("Received new transaction {0}", Transaction.txIdV8ToLegacy(tx.id));
+                                    Console.WriteLine("Received new transaction {0}", tx.getTxIdString());
+                                }
+                            }
+                        }
+                        break;
+
+                    case ProtocolMessageCode.transactionData2:
+                        {
+                            Transaction tx = new Transaction(data, true, true);
+
+                            if (endpoint.presenceAddress.type == 'M' || endpoint.presenceAddress.type == 'H')
+                            {
+                                PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
+                            }
+
+                            if (Node.tiv.receivedNewTransaction(tx))
+                            {
+                                if (!Program.commands.stressRunning)
+                                {
+                                    Console.WriteLine("Received new transaction {0}", tx.getTxIdString());
                                 }
                             }
                         }

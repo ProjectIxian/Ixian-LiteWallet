@@ -110,7 +110,7 @@ namespace IxianLiteWallet
 
         void handleAddress()
         {
-            Console.WriteLine("Primary address: {0}\n", Base58Check.Base58CheckEncoding.EncodePlain(IxianHandler.getWalletStorage().getPrimaryAddress()));
+            Console.WriteLine("Primary address: {0}\n", IxianHandler.getWalletStorage().getPrimaryAddress().ToString());
         }
 
         void handleAddresses()
@@ -197,7 +197,7 @@ namespace IxianLiteWallet
                 Console.WriteLine("Please type a positive amount.\n");
                 return;
             }
-            Node.sendTransaction(address, amount);
+            Node.sendTransaction(new Address(_address), amount);
         }
 
         void handleVerify(string line)
@@ -261,7 +261,7 @@ namespace IxianLiteWallet
                 return;
             }
 
-            byte[] to = Base58Check.Base58CheckEncoding.DecodePlain(split[3]);
+            Address to = new Address(Base58Check.Base58CheckEncoding.DecodePlain(split[3]));
 
             new Thread(() =>
            {
@@ -277,8 +277,8 @@ namespace IxianLiteWallet
                {
                    IxiNumber amount = ConsensusConfig.transactionPrice;
                    IxiNumber fee = ConsensusConfig.transactionPrice;
-                   byte[] from = IxianHandler.getWalletStorage().getPrimaryAddress();
-                   byte[] pubKey = IxianHandler.getWalletStorage().getPrimaryPublicKey();
+                   Address from = IxianHandler.getWalletStorage().getPrimaryAddress();
+                   Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
 
                    long start_time = Clock.getTimestampMillis();
                    int spam_counter = 0;

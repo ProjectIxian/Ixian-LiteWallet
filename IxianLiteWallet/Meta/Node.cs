@@ -7,12 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static IXICore.Transaction;
 
 namespace LW.Meta
 {
     class Balance
     {
-        public byte[] address = null;
+        public Address address = null;
         public IxiNumber balance = 0;
         public ulong blockHeight = 0;
         public byte[] blockChecksum = null;
@@ -138,7 +139,7 @@ namespace LW.Meta
 
             if (walletStorage.viewingWallet)
             {
-                Logging.error("Viewing-only wallet {0} cannot be used as the primary wallet.", Base58Check.Base58CheckEncoding.EncodePlain(walletStorage.getPrimaryAddress()));
+                Logging.error("Viewing-only wallet {0} cannot be used as the primary wallet.", walletStorage.getPrimaryAddress().ToString());
                 return false;
             }
 
@@ -192,15 +193,15 @@ namespace LW.Meta
             {
                 using (BinaryWriter writer = new BinaryWriter(mw))
                 {
-                    writer.WriteIxiVarInt(IxianHandler.getWalletStorage().getPrimaryAddress().Length);
-                    writer.Write(IxianHandler.getWalletStorage().getPrimaryAddress());
+                    writer.WriteIxiVarInt(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum.Length);
+                    writer.Write(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum);
                     NetworkClientManager.broadcastData(new char[] { 'M', 'H' }, ProtocolMessageCode.getBalance2, mw.ToArray(), null);
                 }
             }
             ProtocolMessage.wait(30);
         }
 
-        static public void sendTransaction(string address, IxiNumber amount)
+        static public void sendTransaction(Address address, IxiNumber amount)
         {
             Node.getBalance();
 
@@ -210,16 +211,17 @@ namespace LW.Meta
                 return;
             }
 
-            SortedDictionary<byte[], IxiNumber> to_list = new SortedDictionary<byte[], IxiNumber>(new ByteArrayComparer());
+            SortedDictionary<Address, ToEntry> to_list = new SortedDictionary<Address, ToEntry>(new AddressComparer());
 
             IxiNumber fee = ConsensusConfig.transactionPrice;
-            byte[] from = IxianHandler.getWalletStorage().getPrimaryAddress();
-            byte[] pubKey = IxianHandler.getWalletStorage().getPrimaryPublicKey();
-            to_list.AddOrReplace(Base58Check.Base58CheckEncoding.DecodePlain(address), amount);
-            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, null, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
+            var from = IxianHandler.getWalletStorage().getPrimaryAddress();
+            Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
+            var toEntry = new ToEntry(Transaction.maxVersion, amount);
+            to_list.AddOrReplace(address, toEntry);
+            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
             if (IxianHandler.addTransaction(transaction, true))
             {
-                Console.WriteLine("Sending transaction, txid: {0}\n", Transaction.txIdV8ToLegacy(transaction.id));
+                Console.WriteLine("Sending transaction, txid: {0}\n", transaction.getTxIdString());
             }else
             {
                 Console.WriteLine("Could not send transaction\n");
@@ -242,7 +244,7 @@ namespace LW.Meta
                 status = "VERIFIED";
                 PendingTransactions.remove(txid);
             }
-            Console.WriteLine("Transaction {0} is {1}\n", Transaction.txIdV8ToLegacy(txid), status);
+            Console.WriteLine("Transaction {0} is {1}\n", Transaction.getTxIdString(txid), status);
         }
 
         public override void receivedBlockHeader(BlockHeader block_header, bool verified)
@@ -290,7 +292,7 @@ namespace LW.Meta
         public override bool addTransaction(Transaction tx, bool force_broadcast)
         {
             // TODO Send to peer if directly connectable
-            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData, tx.getBytes(), null);
+            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData2, tx.getBytes(true), null);
             PendingTransactions.addPendingLocalTransaction(tx);
             return true;
         }
@@ -300,20 +302,20 @@ namespace LW.Meta
             throw new NotImplementedException();
         }
 
-        public override Wallet getWallet(byte[] id)
+        public override Wallet getWallet(Address id)
         {
             // TODO Properly implement this for multiple addresses
-            if (balance.address != null && id.SequenceEqual(balance.address))
+            if (balance.address != null && id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
             {
-                return new Wallet(balance.address, balance.balance);
+                return new Wallet(id, balance.balance);
             }
             return new Wallet(id, 0);
         }
 
-        public override IxiNumber getWalletBalance(byte[] id)
+        public override IxiNumber getWalletBalance(Address id)
         {
             // TODO Properly implement this for multiple addresses
-            if (balance.address != null && id.SequenceEqual(balance.address))
+            if (balance.address != null && id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
             {
                 return balance.balance;
             }
@@ -353,14 +355,14 @@ namespace LW.Meta
                     // if transaction expired, remove it from pending transactions
                     if (last_block_height > ConsensusConfig.getRedactedWindowSize() && t.blockHeight < last_block_height - ConsensusConfig.getRedactedWindowSize())
                     {
-                        Console.WriteLine("Error sending the transaction {0}", Transaction.txIdV8ToLegacy(t.id));
+                        Console.WriteLine("Error sending the transaction {0}", t.getTxIdString());
                         PendingTransactions.pendingTransactions.RemoveAll(x => x.transaction.id.SequenceEqual(t.id));
                         continue;
                     }
 
                     if (cur_time - tx_time > 40) // if the transaction is pending for over 40 seconds, resend
                     {
-                        CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData, t.getBytes(), null);
+                        CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData2, t.getBytes(true), null);
                         entry.addedTimestamp = cur_time;
                         entry.confirmedNodeList.Clear();
                     }
@@ -383,6 +385,11 @@ namespace LW.Meta
         public override BlockHeader getBlockHeader(ulong blockNum)
         {
             return BlockHeaderStorage.getBlockHeader(blockNum);
+        }
+
+        public override IxiNumber getMinSignerPowDifficulty(ulong blockNum)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -389,7 +389,8 @@ namespace LW.Meta
 
         public override IxiNumber getMinSignerPowDifficulty(ulong blockNum)
         {
-            throw new NotImplementedException();
+            // TODO TODO implement this properly
+            return ConsensusConfig.minBlockSignerPowDifficulty;
         }
     }
 }

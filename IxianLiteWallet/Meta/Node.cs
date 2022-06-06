@@ -247,7 +247,7 @@ namespace LW.Meta
             Console.WriteLine("Transaction {0} is {1}\n", Transaction.getTxIdString(txid), status);
         }
 
-        public override void receivedBlockHeader(BlockHeader block_header, bool verified)
+        public override void receivedBlockHeader(Block block_header, bool verified)
         {
             if(balance.blockChecksum != null && balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
             {
@@ -299,7 +299,7 @@ namespace LW.Meta
 
         public override Block getLastBlock()
         {
-            throw new NotImplementedException();
+            return tiv.getLastBlockHeader();
         }
 
         public override Wallet getWallet(Address id)
@@ -382,7 +382,7 @@ namespace LW.Meta
             }
         }
 
-        public override BlockHeader getBlockHeader(ulong blockNum)
+        public override Block getBlockHeader(ulong blockNum)
         {
             return BlockHeaderStorage.getBlockHeader(blockNum);
         }

@@ -216,7 +216,7 @@ namespace LW.Meta
             IxiNumber fee = ConsensusConfig.transactionPrice;
             var from = IxianHandler.getWalletStorage().getPrimaryAddress();
             Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
-            var toEntry = new ToEntry(Transaction.maxVersion, amount);
+            var toEntry = new ToEntry(Transaction.getExpectedVersion(IxianHandler.getLastBlockVersion()), amount);
             to_list.AddOrReplace(address, toEntry);
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
             if (IxianHandler.addTransaction(transaction, true))
@@ -282,8 +282,10 @@ namespace LW.Meta
 
         public override int getLastBlockVersion()
         {
-            if (tiv.getLastBlockHeader() == null || tiv.getLastBlockHeader().version < Block.maxVersion)
+            if (tiv.getLastBlockHeader() == null 
+                || tiv.getLastBlockHeader().version < Block.maxVersion)
             {
+                // TODO Omega force to v10 after upgrade
                 return Block.maxVersion - 1;
             }
             return tiv.getLastBlockHeader().version;

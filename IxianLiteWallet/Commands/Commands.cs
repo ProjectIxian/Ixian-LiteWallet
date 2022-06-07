@@ -45,6 +45,14 @@ namespace IxianLiteWallet
                     handleStatus();
                     break;
 
+                case "nodes":
+                    handleNodes();
+                    break;
+
+                case "reconnect":
+                    handleReconnect();
+                    break;
+
                 case "balance":
                     handleBalance();
                     break;
@@ -85,6 +93,8 @@ namespace IxianLiteWallet
             Console.WriteLine("\texit\t\t\t-exits the litewallet");
             Console.WriteLine("\thelp\t\t\t-shows this help message");
             Console.WriteLine("\tstatus\t\t\t-shows the number of connected DLT nodes");
+            Console.WriteLine("\tnodes\t\t\t-shows the connected DLT nodes and their versions");
+            Console.WriteLine("\treconnect\t\t-reconnects to the Ixian DLT network");
             Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
             Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
             Console.WriteLine("\taddresses\t\t-shows all addresses for this wallet");
@@ -235,6 +245,21 @@ namespace IxianLiteWallet
             Console.WriteLine("Pending transactions: {0}\n", PendingTransactions.pendingTransactionCount());
         }
 
+        void handleNodes()
+        {
+            string[] nodes = NetworkClientManager.getConnectedClients(true);
+            foreach(string node in nodes)
+            {
+                Console.WriteLine("{0}", node);
+            }
+            Console.WriteLine();         
+        }
+
+        void handleReconnect()
+        {
+            Console.WriteLine("Reconnecting to Ixian network...\n");
+            NetworkClientManager.restartClients();           
+        }
         void handleStress(string line)
         {
             string[] split = line.Split(new string[] { " " }, StringSplitOptions.None);

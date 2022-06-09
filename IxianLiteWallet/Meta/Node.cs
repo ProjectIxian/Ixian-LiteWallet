@@ -203,9 +203,10 @@ namespace LW.Meta
 
         static public void sendTransaction(Address address, IxiNumber amount)
         {
-            Node.getBalance();
+            
+            getBalance();
 
-            if (Node.balance.balance < amount)
+            if (balance.balance < amount)
             {
                 Console.WriteLine("Insufficient funds.\n");
                 return;
@@ -213,12 +214,17 @@ namespace LW.Meta
 
             SortedDictionary<Address, ToEntry> to_list = new SortedDictionary<Address, ToEntry>(new AddressComparer());
 
-            IxiNumber fee = ConsensusConfig.transactionPrice;
+            IxiNumber fee = ConsensusConfig.forceTransactionPrice;
             var from = IxianHandler.getWalletStorage().getPrimaryAddress();
             Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
             var toEntry = new ToEntry(Transaction.getExpectedVersion(IxianHandler.getLastBlockVersion()), amount);
             to_list.AddOrReplace(address, toEntry);
             Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
+            if (transaction.amount + transaction.fee > balance.balance)
+            {
+                Console.WriteLine("Insufficient funds.\n");
+                return;
+            }
             if (IxianHandler.addTransaction(transaction, true))
             {
                 Console.WriteLine("Sending transaction, txid: {0}\n", transaction.getTxIdString());
@@ -294,7 +300,7 @@ namespace LW.Meta
         public override bool addTransaction(Transaction tx, bool force_broadcast)
         {
             // TODO Send to peer if directly connectable
-            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData2, tx.getBytes(true), null);
+            CoreProtocolMessage.broadcastProtocolMessage(new char[] { 'M', 'H' }, ProtocolMessageCode.transactionData2, tx.getBytes(true, true), null);
             PendingTransactions.addPendingLocalTransaction(tx);
             return true;
         }

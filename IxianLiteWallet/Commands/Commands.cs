@@ -300,8 +300,8 @@ namespace IxianLiteWallet
                stressRunning = true;
                try
                {
-                   IxiNumber amount = ConsensusConfig.transactionPrice;
-                   IxiNumber fee = ConsensusConfig.transactionPrice;
+                   IxiNumber amount = ConsensusConfig.transactionDustLimit;
+                   IxiNumber fee = ConsensusConfig.forceTransactionPrice;
                    Address from = IxianHandler.getWalletStorage().getPrimaryAddress();
                    Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
 

@@ -9,7 +9,7 @@ namespace LW.Meta
         public static string walletFile = "ixian.wal";
         public static bool onlyShowAddresses = false;
 
-        public static readonly string version = "xlwc-0.8.2"; // LiteWallet version
+        public static readonly string version = "xlwc-0.9.0"; // LiteWallet version
 
         private static string outputHelp()
         {

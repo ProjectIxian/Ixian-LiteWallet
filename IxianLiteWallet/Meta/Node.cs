@@ -36,7 +36,7 @@ namespace LW.Meta
         public Node()
         {
             CoreConfig.simultaneousConnectedNeighbors = 6;
-            IxianHandler.init(Config.version, this, NetworkType.main);
+            IxianHandler.init(Config.version, this, NetworkType.main, true);
             init();
         }
 

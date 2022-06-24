@@ -180,7 +180,7 @@ namespace LW.Meta
             }
             else
             {
-                tiv.start("", 0, null);
+                tiv.start("", 0, null, false);
             }
         }
 

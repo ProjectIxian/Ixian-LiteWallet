@@ -53,13 +53,12 @@ namespace IxianLiteWallet
 
         static void mainLoop()
         {
+            LineEditor le = new LineEditor("IxianLiteWallet");
             Console.WriteLine("Type help to see a list of available commands.\n");
+
             while (running && !IxianHandler.forceShutdown)
             {
-                Console.Write("IxianLiteWallet>");
-                string line = Console.ReadLine();
-                Console.WriteLine("");
-
+                string line = le.Edit("IxianLiteWallet> ", "");
                 commands.handleCommand(line);
             }
         }

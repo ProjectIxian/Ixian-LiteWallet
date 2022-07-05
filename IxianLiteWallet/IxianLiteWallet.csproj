@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Commands.cs" />
+    <Compile Include="Commands\GetLine.cs" />
     <Compile Include="Meta\Config.cs" />
     <Compile Include="Meta\Node.cs" />
     <Compile Include="Network\NetworkProtocol.cs" />

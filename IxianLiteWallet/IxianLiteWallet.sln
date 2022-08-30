@@ -1,17 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2037
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IxianLiteWallet", "IxianLiteWallet.csproj", "{3F88E65A-554D-4BF3-A8DD-8B4E2D52E5BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IxianLiteWallet", "IxianLiteWallet.csproj", "{3F88E65A-554D-4BF3-A8DD-8B4E2D52E5BB}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IXICore", "..\..\Ixian-Core\IXICore.shproj", "{80487C64-619A-4B60-97BD-ED7670BF45B3}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\Ixian-Core\IXICore.projitems*{3f88e65a-554d-4bf3-a8dd-8b4e2d52e5bb}*SharedItemsImports = 4
-		..\..\Ixian-Core\IXICore.projitems*{80487c64-619a-4b60-97bd-ed7670bf45b3}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -27,5 +23,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D8D7F42-8288-400C-8811-1F3EE1980F7A}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\Ixian-Core\IXICore.projitems*{3f88e65a-554d-4bf3-a8dd-8b4e2d52e5bb}*SharedItemsImports = 5
+		..\..\Ixian-Core\IXICore.projitems*{80487c64-619a-4b60-97bd-ed7670bf45b3}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

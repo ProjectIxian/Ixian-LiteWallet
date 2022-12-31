@@ -806,8 +806,9 @@ namespace IxianLiteWallet
 			a.Cancel = true;
 
 			// Interrupt the editor
-			edit_thread.Abort();
-		}
+            edit_thread.Interrupt();
+            edit_thread.Join();
+        }
 
 		void HandleChar(char c)
 		{
@@ -921,7 +922,7 @@ namespace IxianLiteWallet
 				catch (ThreadAbortException)
 				{
 					searching = 0;
-					Thread.ResetAbort();
+					//Thread.ResetAbort();
 					Console.WriteLine();
 					SetPrompt(prompt);
 					SetText("");

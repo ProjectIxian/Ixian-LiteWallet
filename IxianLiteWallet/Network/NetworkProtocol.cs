@@ -15,11 +15,13 @@ namespace LW.Network
     public class ProtocolMessage
     {
         public static ProtocolMessageCode waitingFor = 0;
+        public static byte[] waitForAddress = null;
         public static bool blocked = false;
 
-        public static void setWaitFor(ProtocolMessageCode value)
+        public static void setWaitFor(ProtocolMessageCode value, byte[] addr)
         {
             waitingFor = value;
+            waitForAddress = addr;
             blocked = true;
         }
 
@@ -102,39 +104,6 @@ namespace LW.Network
                         }
                         break;
 
-                    case ProtocolMessageCode.balance:
-                        {
-                            using (MemoryStream m = new MemoryStream(data))
-                            {
-                                using (BinaryReader reader = new BinaryReader(m))
-                                {
-                                    int address_length = reader.ReadInt32();
-                                    Address address = new Address(reader.ReadBytes(address_length));
-
-                                    // Retrieve the latest balance
-                                    IxiNumber balance = new IxiNumber(reader.ReadString());
-
-                                    if (address.addressNoChecksum.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum))
-                                    {
-                                        // Retrieve the blockheight for the balance
-                                        ulong block_height = reader.ReadUInt64();
-
-                                        if (block_height > Node.balance.blockHeight && (Node.balance.balance != balance || Node.balance.blockHeight == 0))
-                                        {
-                                            byte[] block_checksum = reader.ReadBytes(reader.ReadInt32());
-
-                                            Node.balance.address = address;
-                                            Node.balance.balance = balance;
-                                            Node.balance.blockHeight = block_height;
-                                            Node.balance.blockChecksum = block_checksum;
-                                            Node.balance.verified = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-
                     case ProtocolMessageCode.balance2:
                         {
                             using (MemoryStream m = new MemoryStream(data))
@@ -148,22 +117,30 @@ namespace LW.Network
                                     byte[] balance_bytes = reader.ReadBytes(balance_bytes_len);
 
                                     // Retrieve the latest balance
-                                    IxiNumber balance = new IxiNumber(new BigInteger(balance_bytes));
+                                    IxiNumber ixi_balance = new IxiNumber(new BigInteger(balance_bytes));
 
-                                    if (address.addressNoChecksum.SequenceEqual(IxianHandler.getWalletStorage().getPrimaryAddress().addressNoChecksum))
+                                    foreach (Balance balance in Node.balances)
                                     {
-                                        // Retrieve the blockheight for the balance
-                                        ulong block_height = reader.ReadIxiVarUInt();
-
-                                        if (block_height > Node.balance.blockHeight && (Node.balance.balance != balance || Node.balance.blockHeight == 0))
+                                        if (address.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
                                         {
-                                            byte[] block_checksum = reader.ReadBytes((int)reader.ReadIxiVarUInt());
+                                            // Retrieve the blockheight for the balance
+                                            ulong block_height = reader.ReadIxiVarUInt();
 
-                                            Node.balance.address = address;
-                                            Node.balance.balance = balance;
-                                            Node.balance.blockHeight = block_height;
-                                            Node.balance.blockChecksum = block_checksum;
-                                            Node.balance.verified = false;
+                                            if (block_height > balance.blockHeight && (balance.balance != ixi_balance || balance.blockHeight == 0))
+                                            {
+                                                byte[] block_checksum = reader.ReadBytes((int)reader.ReadIxiVarUInt());
+
+                                                balance.address = address;
+                                                balance.balance = ixi_balance;
+                                                balance.blockHeight = block_height;
+                                                balance.blockChecksum = block_checksum;
+                                                balance.verified = false;
+                                            }
+
+                                            if (waitingFor == code && waitForAddress != null && waitForAddress.SequenceEqual(address.addressWithChecksum))
+                                            {
+                                                blocked = false;
+                                            }
                                         }
                                     }
                                 }
@@ -243,10 +220,6 @@ namespace LW.Network
                 Logging.error("Error parsing network message. Details: {0}", e);
             }
 
-            if(waitingFor == code)
-            {
-                blocked = false;
-            }
         }
 
     }

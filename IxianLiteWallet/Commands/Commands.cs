@@ -61,10 +61,6 @@ namespace IxianLiteWallet
                     handleAddress();
                     break;
 
-                case "addresses":
-                    handleAddresses();
-                    break;
-
                 case "backup":
                     handleBackup();
                     break;
@@ -73,8 +69,16 @@ namespace IxianLiteWallet
                     handleChangePass();
                     break;
 
+                case "generate":
+                    handleGenerate();
+                    break;
+
                 case "send":
                     handleSend(line);
+                    break;
+
+                case "sendfrom":
+                    handleSendFrom(line);
                     break;
 
                 case "verify":
@@ -95,35 +99,55 @@ namespace IxianLiteWallet
             Console.WriteLine("\tstatus\t\t\t-shows the number of connected DLT nodes");
             Console.WriteLine("\tnodes\t\t\t-shows the connected DLT nodes and their versions");
             Console.WriteLine("\treconnect\t\t-reconnects to the Ixian DLT network");
-            Console.WriteLine("\tbalance\t\t\t-shows this wallet balance");
-            Console.WriteLine("\taddress\t\t\t-shows this wallet's primary address");
-            Console.WriteLine("\taddresses\t\t-shows all addresses for this wallet");
+            Console.WriteLine("\tgenerate\t\t-generates a new address for this wallet");
+            Console.WriteLine("\taddress\t\t\t-shows all addresses for this wallet");
+            Console.WriteLine("\tbalance\t\t\t-shows all address balances for this wallet");
             Console.WriteLine("\tbackup\t\t\t-backup this wallet as an IXIHEX text");
             Console.WriteLine("\tchangepass\t\t-changes this wallet's password");
             //Console.WriteLine("\tverify [txid]\t\t-verifies the specified transaction txid");
             Console.WriteLine("\tsend [address] [amount]\t-sends IxiCash to the specified address");
-            // generate new address, view all address balances
+            Console.WriteLine("\tsendfrom [fromaddress] [toaddress] [amount] -sends IxiCash from a specific address to the specified address");
             // change password
             Console.WriteLine("");
         }
 
         void handleBalance()
         {
-            Node.getBalance();
-            string verified = "";
-            if (Node.balance.verified)
+            List<Address> address_list = IxianHandler.getWalletStorage().getMyAddresses();
+
+            IxiNumber total_balance = 0;
+            foreach (Address addr in address_list)
             {
-                //verified = " (verified)"; // not yet
+                Node.getBalance(addr.addressWithChecksum);
+
+                IxiNumber address_balance = 0;
+                string verified = "";
+
+                foreach (Balance balance in Node.balances)
+                {
+                    if (balance.address != null && balance.address.addressWithChecksum.SequenceEqual(addr.addressWithChecksum))
+                    {
+                        address_balance = balance.balance;
+
+                        /*if (balance.verified)
+                        {
+                            verified = " (verified)"; // not yet
+                        }*/
+                    }
+                }
+
+                Console.WriteLine("{0} : {1} IXI{2}", addr.ToString(), address_balance, verified);
+                total_balance += address_balance;
             }
-            Console.WriteLine("Balance: {0} IXI{1}\n", Node.balance.balance, verified);
+            Console.WriteLine("--------------");
+
+
+            Console.WriteLine("Total Balance: {0} IXI\n", total_balance);
+
+            Console.WriteLine("");
         }
 
         void handleAddress()
-        {
-            Console.WriteLine("Primary address: {0}\n", IxianHandler.getWalletStorage().getPrimaryAddress().ToString());
-        }
-
-        void handleAddresses()
         {
             List<Address> address_list = IxianHandler.getWalletStorage().getMyAddresses();
 
@@ -184,6 +208,11 @@ namespace IxianLiteWallet
                 Console.WriteLine("Wallet password changed.");
         }
 
+        void handleGenerate()
+        {
+            Node.generateNewAddress();
+        }
+
         void handleSend(string line)
         {
             string[] split = line.Split(new string[] { " " }, StringSplitOptions.None);
@@ -208,6 +237,41 @@ namespace IxianLiteWallet
                 return;
             }
             Node.sendTransaction(new Address(_address), amount);
+        }
+
+        void handleSendFrom(string line)
+        {
+            string[] split = line.Split(new string[] { " " }, StringSplitOptions.None);
+            if (split.Count() < 4)
+            {
+                Console.WriteLine("Incorrect parameters for sendfrom. Should be fromAddress, address and amount.\n");
+                return;
+            }
+            string fromAddress = split[1];
+            // Validate the from address first
+            byte[] _fromAddress = Base58Check.Base58CheckEncoding.DecodePlain(fromAddress);
+            if (Address.validateChecksum(_fromAddress) == false)
+            {
+                Console.WriteLine("Invalid fromAddress checksum!. Please make sure you typed the address correctly.\n");
+                return;
+            }
+
+            string address = split[2];
+            // Validate the to address first
+            byte[] _address = Base58Check.Base58CheckEncoding.DecodePlain(address);
+            if (Address.validateChecksum(_address) == false)
+            {
+                Console.WriteLine("Invalid address checksum!. Please make sure you typed the address correctly.\n");
+                return;
+            }
+            // Make sure the amount is positive
+            IxiNumber amount = new IxiNumber(split[3]);
+            if (amount < (long)0)
+            {
+                Console.WriteLine("Please type a positive amount.\n");
+                return;
+            }
+            Node.sendTransactionFrom(new Address(_fromAddress), new Address(_address), amount);
         }
 
         void handleVerify(string line)

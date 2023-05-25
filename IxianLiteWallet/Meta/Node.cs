@@ -18,13 +18,19 @@ namespace LW.Meta
         public ulong blockHeight = 0;
         public byte[] blockChecksum = null;
         public bool verified = false;
+
+        public Balance(Address address, IxiNumber balance)
+        {
+            this.address = address;
+            this.balance = balance;
+        }
     }
 
     class Node : IxianNode
     {
         public static bool running = false;
 
-        public static Balance balance = new Balance();      // Stores the last known balance for this node
+        public static List<Balance> balances = new List<Balance>(); // Stores the last known balances for this node
 
         public static TransactionInclusion tiv = null;
 
@@ -145,6 +151,13 @@ namespace LW.Meta
 
             IxianHandler.addWallet(walletStorage);
 
+            // Prepare the balances list
+            List<Address> address_list = IxianHandler.getWalletStorage().getMyAddresses();
+            foreach (Address addr in address_list)
+            {
+                balances.Add(new Balance(addr, 0));
+            }
+
             return true;
         }
 
@@ -184,55 +197,96 @@ namespace LW.Meta
             }
         }
 
-        static public void getBalance()
+        static public void getBalance(byte[] address)
         {
-            ProtocolMessage.setWaitFor(ProtocolMessageCode.balance2);
+            ProtocolMessage.setWaitFor(ProtocolMessageCode.balance2, address);
 
             // Return the balance for the matching address
             using (MemoryStream mw = new MemoryStream())
             {
                 using (BinaryWriter writer = new BinaryWriter(mw))
                 {
-                    writer.WriteIxiVarInt(IxianHandler.getWalletStorage().getPrimaryAddress().addressWithChecksum.Length);
-                    writer.Write(IxianHandler.getWalletStorage().getPrimaryAddress().addressWithChecksum);
+                    writer.WriteIxiVarInt(address.Length);
+                    writer.Write(address);
                     NetworkClientManager.broadcastData(new char[] { 'M', 'H' }, ProtocolMessageCode.getBalance2, mw.ToArray(), null);
                 }
             }
             ProtocolMessage.wait(30);
         }
 
+        static public void generateNewAddress()
+        {
+            Address base_address = IxianHandler.getWalletStorage().getPrimaryAddress();
+            Address new_address = IxianHandler.getWalletStorage().generateNewAddress(base_address, null);
+            if (new_address != null)
+            {
+                balances.Add(new Balance(new_address, 0));
+                Console.WriteLine("New address generated: {0}", new_address.ToString());
+            }
+            else
+            {
+                Console.WriteLine("Error occurred while generating a new address");
+            }
+        }
+
         static public void sendTransaction(Address address, IxiNumber amount)
         {
-            
-            getBalance();
+            // TODO add support for sending funds from multiple addreses automatically based on remaining balance
+            Balance address_balance = balances.First();
+            var from = address_balance.address;
+            sendTransactionFrom(from, address, amount);
+        }
 
-            if (balance.balance < amount)
-            {
-                Console.WriteLine("Insufficient funds.\n");
-                return;
-            }
-
-            SortedDictionary<Address, ToEntry> to_list = new SortedDictionary<Address, ToEntry>(new AddressComparer());
+        static public void sendTransactionFrom(Address fromAddress, Address address, IxiNumber amount)
+        {
+            getBalance(fromAddress.addressWithChecksum);
 
             IxiNumber fee = ConsensusConfig.forceTransactionPrice;
-            var from = IxianHandler.getWalletStorage().getPrimaryAddress();
-            Address pubKey = new Address(IxianHandler.getWalletStorage().getPrimaryPublicKey());
-            var toEntry = new ToEntry(Transaction.getExpectedVersion(IxianHandler.getLastBlockVersion()), amount);
-            to_list.AddOrReplace(address, toEntry);
-            Transaction transaction = new Transaction((int)Transaction.Type.Normal, fee, to_list, from, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
-            if (transaction.amount + transaction.fee > balance.balance)
+            SortedDictionary<Address, ToEntry> to_list = new(new AddressComparer());
+            Balance address_balance = balances.FirstOrDefault(addr => addr.address.addressWithChecksum.SequenceEqual(fromAddress.addressWithChecksum));
+            Address pubKey = new(IxianHandler.getWalletStorage().getPrimaryPublicKey());
+
+            if (!IxianHandler.getWalletStorage().isMyAddress(fromAddress))
             {
-                Console.WriteLine("Insufficient funds.\n");
+                Console.WriteLine("From address is not my address.\n");
                 return;
             }
+
+            SortedDictionary<byte[], IxiNumber> from_list = new(new ByteArrayComparer())
+            {
+                { IxianHandler.getWalletStorage().getAddress(fromAddress).nonce, amount }
+            };
+
+            to_list.AddOrReplace(address, new ToEntry(Transaction.getExpectedVersion(IxianHandler.getLastBlockVersion()), amount));
+
+            // Prepare transaction to calculate fee
+            Transaction transaction = new((int)Transaction.Type.Normal, fee, to_list, from_list, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
+
+            byte[] first_address = from_list.Keys.First();
+            from_list[first_address] = from_list[first_address] + transaction.fee;
+            IxiNumber wal_bal = IxianHandler.getWalletBalance(new Address(transaction.pubKey.addressNoChecksum, first_address));
+            if (from_list[first_address] > wal_bal)
+            {
+                IxiNumber maxAmount = wal_bal - transaction.fee;
+
+                if (maxAmount < 0)
+                    maxAmount = 0;
+
+                Console.WriteLine("Insufficient funds to cover amount and transaction fee.\nMaximum amount you can send is {0} IXI.\n", maxAmount);
+                return;
+            }
+            // Prepare transaction with updated "from" amount to cover fee
+            transaction = new((int)Transaction.Type.Normal, fee, to_list, from_list, pubKey, IxianHandler.getHighestKnownNetworkBlockHeight());
+
+            // Send the transaction
             if (IxianHandler.addTransaction(transaction, true))
             {
                 Console.WriteLine("Sending transaction, txid: {0}\n", transaction.getTxIdString());
-            }else
+            }
+            else
             {
                 Console.WriteLine("Could not send transaction\n");
             }
-
         }
 
         static public void setNetworkBlock(ulong block_height, byte[] block_checksum, int block_version)
@@ -255,10 +309,14 @@ namespace LW.Meta
 
         public override void receivedBlockHeader(Block block_header, bool verified)
         {
-            if(balance.blockChecksum != null && balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
+            foreach (Balance balance in balances)
             {
-                balance.verified = true;
+                if (balance.blockChecksum != null && balance.blockChecksum.SequenceEqual(block_header.blockChecksum))
+                {
+                    balance.verified = true;
+                }
             }
+
             if(block_header.blockNum >= networkBlockHeight)
             {
                 IxianHandler.status = NodeStatus.ready;
@@ -312,20 +370,20 @@ namespace LW.Meta
 
         public override Wallet getWallet(Address id)
         {
-            // TODO Properly implement this for multiple addresses
-            if (balance.address != null && id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
+            foreach (Balance balance in balances)
             {
-                return new Wallet(id, balance.balance);
+                if (id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
+                    return new Wallet(id, balance.balance);
             }
             return new Wallet(id, 0);
         }
 
         public override IxiNumber getWalletBalance(Address id)
         {
-            // TODO Properly implement this for multiple addresses
-            if (balance.address != null && id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
+            foreach (Balance balance in balances)
             {
-                return balance.balance;
+                if (id.addressNoChecksum.SequenceEqual(balance.address.addressNoChecksum))
+                    return balance.balance;
             }
             return 0;
         }

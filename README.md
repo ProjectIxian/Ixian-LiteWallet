@@ -8,38 +8,34 @@ Download the latest binary release or you can compile the code yourself.
 Double-click on the IxianLiteWallet.exe to start the wallet.
 
 ### Linux
-Download and install the latest Mono release for your Linux distribution. 
-The default Mono versions shipped with most common distributions are outdated.
+Install the dotnet runtime following the guide for your Linux distribution.
 
-Go to the [Mono official website](https://www.mono-project.com/download/stable/#download-lin) and follow the steps for your Linux distribution.
-We recommend you install the **mono-complete** package.
+Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
 
 Open a terminal and navigate to the IxianLiteWallet folder, then type
 ```
-mono IxianLiteWallet.exe
+./IxianLiteWallet.exe
 ```
 to start the wallet.
 
 ## Building
 ### Windows
-Visual Studio 2017 is required (Community Edition is fine), you can get it from here: [Visual Studio](https://visualstudio.microsoft.com/)
+Visual Studio 2022 (Community Edition is fine) with .NET Desktop Development Workload and Desktop Development with C++ Workload
 
 Several NuGetPackages are downloaded automatically during the build process.
 
 ### Linux
-Download and install the latest Mono release for your Linux distribution. The default Mono versions shipped with most common distributions are outdated.
+Install the dotnet SDK following the guide for your Linux distribution.
 
-Go to the [Mono official website](https://www.mono-project.com/download/stable/#download-lin) and follow the steps for your Linux distribution.
-
-We recommend you install the **mono-complete** package.
+Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
 
 For Debian based distributions such as Ubuntu, type
 ```
-sudo apt install mono-complete nuget msbuild git gcc
+sudo apt install gcc git make unzip
 ```
 or if you have a Redhat based distribution, type
 ```
-sudo yum install mono-complete nuget msbuild git gcc
+sudo yum install gcc git make unzip
 ```
 
 Next you'll need to build the IxianLiteWallet solution. You can do this by typing the following commands in the terminal:
@@ -47,8 +43,7 @@ Next you'll need to build the IxianLiteWallet solution. You can do this by typin
 git clone https://github.com/ProjectIxian/Ixian-Core.git
 git clone https://github.com/ProjectIxian/Ixian-LiteWallet.git
 cd Ixian-LiteWallet/IxianLiteWallet
-nuget restore IxianLiteWallet.sln
-msbuild IxianLiteWallet.sln /p:Configuration=Release
+sh rebuild.sh
 ```
 The IxianLiteWallet will be compiled and placed in the IxianLiteWallet/bin/Release/ folder.
 

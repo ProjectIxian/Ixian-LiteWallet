@@ -8,15 +8,23 @@ Download the latest binary release or you can compile the code yourself.
 Double-click on the IxianLiteWallet.exe to start the wallet.
 
 ### Linux
-Install the dotnet runtime following the guide for your Linux distribution.
-
-Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
+Install the dotnet runtime following the guide for your Linux distribution. Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
 
 Open a terminal and navigate to the IxianLiteWallet folder, then type
 ```
-./IxianLiteWallet.exe
+./IxianLiteWallet
 ```
 to start the wallet.
+
+### macOS
+Install the dotnet runtime following the official guide. Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/macos) and follow the steps.
+
+Open a terminal and navigate to the IxianLiteWallet folder, then type
+```
+./IxianLiteWallet
+```
+to start the wallet.
+
 
 ## Building
 ### Windows
@@ -25,9 +33,7 @@ Visual Studio 2022 (Community Edition is fine) with .NET Desktop Development Wor
 Several NuGetPackages are downloaded automatically during the build process.
 
 ### Linux
-Install the dotnet SDK following the guide for your Linux distribution.
-
-Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
+Install the dotnet SDK following the guide for your Linux distribution. Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/linux) and follow the steps for your Linux distribution.
 
 For Debian based distributions such as Ubuntu, type
 ```
@@ -46,6 +52,23 @@ cd Ixian-LiteWallet/IxianLiteWallet
 sh rebuild.sh
 ```
 The IxianLiteWallet will be compiled and placed in the IxianLiteWallet/bin/Release/ folder.
+
+### macOS
+Install the dotnet SDK following the guide for your Linux distribution. Go to the [Microsoft dotnet page](https://learn.microsoft.com/en-us/dotnet/core/install/macos) and follow the steps.
+
+```
+brew install gcc git make unzip
+```
+
+Next you'll need to build the IxianLiteWallet solution. You can do this by typing the following commands in the terminal:
+```
+git clone https://github.com/ProjectIxian/Ixian-Core.git
+git clone https://github.com/ProjectIxian/Ixian-LiteWallet.git
+cd Ixian-LiteWallet/IxianLiteWallet
+sh rebuild.sh
+```
+The IxianLiteWallet will be compiled and placed in the IxianLiteWallet/bin/Release/ folder.
+
 
 ## Development branches
 

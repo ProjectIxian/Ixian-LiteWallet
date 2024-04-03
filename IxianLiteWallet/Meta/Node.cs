@@ -1,6 +1,7 @@
 ﻿using IXICore;
 using IXICore.Meta;
 using IXICore.Network;
+using IXICore.RegNames;
 using IXICore.Utils;
 using LW.Network;
 using System;
@@ -457,6 +458,33 @@ namespace LW.Meta
         {
             // TODO TODO implement this properly
             return ConsensusConfig.minBlockSignerPowDifficulty;
+        }
+
+
+        public override byte[] getBlockHash(ulong blockNum)
+        {
+            Block b = getBlockHeader(blockNum);
+            if (b == null)
+            {
+                return null;
+            }
+
+            return b.blockChecksum;
+        }
+
+        public override byte[] calculateRegNameChecksumFromUpdatedDataRecords(byte[] name, List<RegisteredNameDataRecord> dataRecords, ulong sequence, Address nextPkHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override byte[] calculateRegNameChecksumForRecovery(byte[] name, Address recoveryHash, ulong sequence, Address nextPkHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override RegisteredNameRecord getRegName(byte[] name, bool useAbsoluteId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -168,25 +168,6 @@ namespace LW.Network
                         }
                         break;
 
-                    case ProtocolMessageCode.transactionData:
-                        {
-                            Transaction tx = new Transaction(data, true);
-
-                            if (endpoint.presenceAddress.type == 'M' || endpoint.presenceAddress.type == 'H')
-                            {
-                                PendingTransactions.increaseReceivedCount(tx.id, endpoint.presence.wallet);
-                            }
-
-                            if (Node.tiv.receivedNewTransaction(tx))
-                            {
-                                if (!Program.commands.stressRunning)
-                                {
-                                    Console.WriteLine("Received new transaction {0}", tx.getTxIdString());
-                                }
-                            }
-                        }
-                        break;
-
                     case ProtocolMessageCode.transactionData2:
                         {
                             Transaction tx = new Transaction(data, true, true);

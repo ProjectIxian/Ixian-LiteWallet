@@ -50,8 +50,6 @@ namespace LW.Meta
         // Perform basic initialization of node
         private void init()
         {
-            Logging.consoleOutput = false;
-
             running = true;
 
             // Load or Generate the wallet
@@ -61,6 +59,8 @@ namespace LW.Meta
                 IxianLiteWallet.Program.running = false;
                 return;
             }
+            
+            Logging.consoleOutput = false;
 
             Console.WriteLine("Connecting to Ixian network...");
 
@@ -108,6 +108,8 @@ namespace LW.Meta
                         Logging.flush();
                         Console.Write("Enter wallet password: ");
                         password = ConsoleHelpers.getPasswordInput();
+                        Logging.consoleOutput = true;
+                        Logging.verbosity = 31;
                     }
                     if (IxianHandler.forceShutdown)
                     {
@@ -454,7 +456,7 @@ namespace LW.Meta
             return BlockHeaderStorage.getBlockHeader(blockNum);
         }
 
-        public override IxiNumber getMinSignerPowDifficulty(ulong blockNum, long curBlockTimestamp)
+        public override IxiNumber getMinSignerPowDifficulty(ulong blockNum, int curBlockVersion, long curBlockTimestamp)
         {
             // TODO TODO implement this properly
             return ConsensusConfig.minBlockSignerPowDifficulty;
